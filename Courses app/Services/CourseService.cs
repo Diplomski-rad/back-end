@@ -83,6 +83,13 @@ namespace Courses_app.Services
             return courseDtos;
         }
 
+        public async Task<List<CourseDto>> SearchCourse(string query)
+        {
+            List<Course> courses = await _courseRepository.SearchCourse(query);
+            var courseDtos = courses.Select(course => new CourseDto(course)).ToList();
+            return courseDtos;
+        }
+
         public async Task<Course> Get(long id)
         {
             return await _courseRepository.Get(id);
@@ -100,5 +107,7 @@ namespace Courses_app.Services
             Course publishedCourse = await _courseRepository.UpdateCourseStatusToPublic(courseId, request.Price);
             return new CourseDto(publishedCourse);
         }
+
+        
     }
 }

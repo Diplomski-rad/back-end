@@ -10,6 +10,8 @@ namespace Courses_app.Repository
         public Task<Course> AddVideoToCourse(long courseId, Video video);
         public Task<List<Video>> GetCourseVideos(long courseId);
         public Task<List<Course>> GetAllPublicCourses();
+        public Task<List<Course>> SearchCourse(string query);
         public Task<Course> UpdateCourseStatusToPublic(long courseId, double price);
+
     }
 }

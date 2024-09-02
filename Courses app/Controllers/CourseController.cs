@@ -3,6 +3,7 @@ using Courses_app.Models;
 using Courses_app.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Courses_app.Controllers
 {
@@ -71,7 +72,7 @@ namespace Courses_app.Controllers
                 CourseDto courseDto = await _courseService.AddVideoToCourse(model);
                 return Ok(courseDto);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message, ex);
             }
@@ -136,6 +137,18 @@ namespace Courses_app.Controllers
                 return StatusCode(500, "An unexpected error occurred while retriving courses. Please try again later.");
             }
         }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchCourses([FromQuery] string query)
+        {
+            try 
+            {
+                return Ok(await _courseService.SearchCourse(query));
+            } 
+            catch(Exception ex) {
+                return StatusCode(500, ex.Message);
+            }
+        } 
 
         [Authorize(Policy = "UserOnly")]
         [HttpGet("single-purchased/{courseId}")]

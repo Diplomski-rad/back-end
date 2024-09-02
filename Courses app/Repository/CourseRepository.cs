@@ -112,6 +112,22 @@ namespace Courses_app.Repository
             
         }
 
+        public async Task<List<Course>> SearchCourse(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return new List<Course>();
+            }
+            try
+            {
+                List<Course> courses = await _context.Course.Include(c => c.Author).Where(c => c.Status == CourseStatus.PUBLISHED && c.Name.Trim().ToLower().Contains(query.Trim().ToLower())).ToListAsync();
+                return courses;
+            }catch (Exception ex)
+            {
+                throw new RepositoryException("Ann error occured while retrieving searched courses.", ex);
+            }
+        }
+
         public async Task<Course> UpdateCourseStatusToPublic(long courseId, double price)
         {
             try
@@ -135,5 +151,7 @@ namespace Courses_app.Repository
                 throw new RepositoryException("An error occurred while updating the course status.", ex);
             }
         }
+
+        
     }
 }
