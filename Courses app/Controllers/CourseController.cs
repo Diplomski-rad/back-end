@@ -3,9 +3,6 @@ using Courses_app.Models;
 using Courses_app.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using RestSharp;
 
 namespace Courses_app.Controllers
 {
@@ -32,12 +29,8 @@ namespace Courses_app.Controllers
             try
             {
                 var res = await _courseService.Add(create);
-                if (res != null)
-                {
-                    return Ok(new { res });
-                }
+                return Ok(new { res });
 
-                return StatusCode(500);
 
             } catch (Exception ex)
             {
@@ -50,7 +43,7 @@ namespace Courses_app.Controllers
         {
             try
             {
-                List<Course> res = await _courseService.GetAuthorCourses(authorId);
+                List<CourseDto> res = await _courseService.GetAuthorCourses(authorId);
                 if (res != null)
                 {
                     return Ok(res);
@@ -75,8 +68,8 @@ namespace Courses_app.Controllers
             }
 
             try {
-                Course course = await _courseService.AddVideoToCourse(model);
-                return Ok(course);
+                CourseDto courseDto = await _courseService.AddVideoToCourse(model);
+                return Ok(courseDto);
             }
             catch (Exception ex) 
             {
@@ -89,7 +82,7 @@ namespace Courses_app.Controllers
         {
             try
             {
-                List<Video> res = await _courseService.GetCourseVideos(courseId);
+                List<VideoDto> res = await _courseService.GetCourseVideos(courseId);
                 if (res != null)
                 {
                     return Ok(res);
@@ -109,7 +102,7 @@ namespace Courses_app.Controllers
         {
             try
             {
-                List<Course> res = await _courseService.GetAllPublicCourses();
+                List<CourseDto> res = await _courseService.GetAllPublicCourses();
                 if (res != null)
                 {
                     return Ok(res);
@@ -129,7 +122,7 @@ namespace Courses_app.Controllers
         {
             try
             {
-                List<PurchasedCourse> res = await _purchaseService.GetPurchasedCourses(userId);
+                List<CourseDto> res = await _purchaseService.GetPurchasedCourses(userId);
                 if (res != null)
                 {
                     return Ok(res);

@@ -1,6 +1,9 @@
-﻿using Courses_app.Models;
+﻿using Courses_app.Dto;
+using Courses_app.Models;
 using Courses_app.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Courses_app.Controllers
 {
@@ -26,23 +29,33 @@ namespace Courses_app.Controllers
 
             try
             {
-                // Call the UploadVideo method from the service, passing the stream directly
                 var videoId = await _videoService.UploadVideo(video.OpenReadStream(), "New playlist video", "x8no2q");
 
                 return Ok(new { VideoId = videoId });
             }
             catch (Exception ex)
             {
-                // Handle errors accordingly
                 return StatusCode(500, new { Error = ex.Message });
             }
         }
 
-        [HttpPost("test")]
-        public async Task<IActionResult> Test()
+
+        [Authorize]
+        [HttpGet("{videoId}/player")]
+        public async Task<IActionResult> GetPlayer(string videoId)
         {
-            return Ok();
+            try
+            {
+                var url = await _videoService.GetPlayerForVideo(videoId);
+
+                return Ok(new { url });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = ex.Message });
+            }
         }
+
 
     }
 }

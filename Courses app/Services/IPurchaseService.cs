@@ -6,6 +6,6 @@ namespace Courses_app.Services
     public interface IPurchaseService
     {
         public Task<long> CreatePurchase(CreatePurchaseModel model);
-        public Task<List<PurchasedCourse>> GetPurchasedCourses(long userId);
+        public Task<List<CourseDto>> GetPurchasedCourses(long userId);
     }
 }

@@ -5,13 +5,13 @@ namespace Courses_app.Services
 {
     public interface ICourseService
     {
-        public Task<Course> Add(CreateCourseModel createCourse);
-        public Task<List<Course>> GetAuthorCourses(long authorId);
-        public Task<Course> AddVideoToCourse(AddVideoModel model);
-        public Task<List<Video>> GetCourseVideos(long courseId);
-        public Task<List<Course>> GetAllPublicCourses();
+        public Task<long> Add(CreateCourseModel createCourse);
+        public Task<List<CourseDto>> GetAuthorCourses(long authorId);
+        public Task<CourseDto> AddVideoToCourse(AddVideoModel model);
+        public Task<List<VideoDto>> GetCourseVideos(long courseId);
+        public Task<List<CourseDto>> GetAllPublicCourses();
         public Task<Course> Get(long id);
-        public Task<PurchasedCourse> GetPurchased(long courseId);
-        public Task<Course> PublishCourse(long courseId, PublishCourseRequest request);
+        public Task<CourseDto> GetPurchased(long courseId);
+        public Task<CourseDto> PublishCourse(long courseId, PublishCourseRequest request);
     }
 }

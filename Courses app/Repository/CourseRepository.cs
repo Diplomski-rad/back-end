@@ -12,13 +12,14 @@ namespace Courses_app.Repository
         {
             _context = context;
         }
-        public async Task<Course> Add(Course course)
+        public async Task<long> Add(Course course)
         {
             try
             {
                 _context.Course.Add(course);
                 await _context.SaveChangesAsync();
-                return course;
+                return course.Id;
+                
             }
             catch (DbUpdateException ex)
             {

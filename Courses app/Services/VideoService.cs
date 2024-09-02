@@ -1,8 +1,10 @@
-﻿using Courses_app.Models;
+﻿using Courses_app.Dto;
+using Courses_app.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Xml.Linq;
 
 namespace Courses_app.Services
 {
@@ -16,6 +18,17 @@ namespace Courses_app.Services
 
             _auth = authService;
 
+        }
+
+        public async Task<string> GetAccessToken()
+        {
+            try {
+                TokenResponse tokenResponse = await _auth.GetAccessToken();
+                return tokenResponse.Access_token;
+            }
+            catch (Exception ex) {
+                throw;
+            }
         }
         public async Task<string> UploadVideo(Stream videoStream, string title, string playlistId)
         {
@@ -169,7 +182,52 @@ namespace Courses_app.Services
 
 
         }
+
+
+        public async Task<string> GetPlayerForVideo(string videoId)
+        {
+            TokenResponse tokenResponse = await _auth.GetAccessToken();
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.Access_token);
+
+            try
+            {
+                var response = await client.GetAsync($"https://api.dailymotion.com/video/{videoId}?fields=private_id");
+                var res = await client.PostAsync($"https://api.dailymotion.com/me/players?label=Player&enable_startscreen_dm_link=false&enable_sharing_url_location=false&enable_sharing=false&enable_paid_partnership_label=false&enable_info=false&enable_dm_logo=false&enable_custom_recommendations=false&enable_channel_link=false&enable_automatic_recommendations=false", null);
+                if (response.IsSuccessStatusCode && res.IsSuccessStatusCode)
+                {
+                    var jsonPrivateId = await response.Content.ReadAsStringAsync();
+                    var privateIdResponse = JsonConvert.DeserializeObject<PrivateIdResponse>(jsonPrivateId);
+                    var jsonPlayer = await res.Content.ReadAsStringAsync();
+                    var playerResponse = JsonConvert.DeserializeObject<CreatePlayerResponse>(jsonPlayer);
+                    if(playerResponse != null && privateIdResponse != null)
+                    {
+                        string url = $"{playerResponse.Embed_html_url}?video={privateIdResponse.Private_Id}&mute=false";
+                        return url;
+                    }
+                    else
+                    {
+                        throw new Exception("Failed to create player");
+                    }
+                    
+                }
+                else
+                {
+                    throw new Exception("Failed to create player");
+                }
+
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Forbidden)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
     }
+
 
     public class UploadUrlResponse
     {

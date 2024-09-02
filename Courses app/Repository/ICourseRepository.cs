@@ -4,7 +4,7 @@ namespace Courses_app.Repository
 {
     public interface ICourseRepository
     {
-        public Task<Course> Add(Course course);
+        public Task<long> Add(Course course);
         public Task<Course> Get(long id);
         public Task<List<Course>> GetAuthorCourses(long authorId);
         public Task<Course> AddVideoToCourse(long courseId, Video video);

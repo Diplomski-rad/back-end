@@ -30,12 +30,12 @@ namespace Courses_app.Services
             return await _purchaseRepository.Add(purchase);
         }
 
-        public async Task<List<PurchasedCourse>> GetPurchasedCourses(long userId)
+        public async Task<List<CourseDto>> GetPurchasedCourses(long userId)
         {
             var purchasedCourses = await _purchaseRepository.GetPurchasedCourses(userId);
 
             var purchasedCourseDtos = purchasedCourses
-                .Select(course => new PurchasedCourse(course))
+                .Select(course => new CourseDto(course))
                 .ToList();
 
             return purchasedCourseDtos;

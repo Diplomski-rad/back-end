@@ -63,7 +63,7 @@ namespace Courses_app.Controllers
                     await _purchaseService.CreatePurchase(purchaseModel);
                 }
 
-                return Ok(payment);
+                return Ok("Successful payment");
             }
             catch (Exception ex)
             {

@@ -18,7 +18,7 @@ namespace Courses_app.Services
             _videoService = videoService;
         }
 
-        public async Task<Course> Add(CreateCourseModel createCourse)
+        public async Task<long> Add(CreateCourseModel createCourse)
         {
             Author author = await _userRepository.GetAuthorById(createCourse.AuthorId);
             if(author == null)
@@ -35,17 +35,22 @@ namespace Courses_app.Services
             course.Status = CourseStatus.DRAFT;
             course.PlaylistId = playlistId;
 
-            Course newCourse = await _courseRepository.Add(course);
-            return newCourse;
+            long courseId = await _courseRepository.Add(course);
+            return courseId;
 
         }
 
-        public async Task<List<Course>> GetAuthorCourses(long authorId)
+        public async Task<List<CourseDto>> GetAuthorCourses(long authorId)
         {
-            return await _courseRepository.GetAuthorCourses(authorId);
+            List<Course> courses = await _courseRepository.GetAuthorCourses(authorId);
+            var courseDtos = courses
+                .Select(course => new CourseDto(course))
+                .ToList();
+
+            return courseDtos;
         }
 
-        public async Task<Course> AddVideoToCourse(AddVideoModel model)
+        public async Task<CourseDto> AddVideoToCourse(AddVideoModel model)
         {
             Author author = await _userRepository.GetAuthorById(model.authorId);
             Course course = await _courseRepository.Get(model.courseId);
@@ -54,17 +59,28 @@ namespace Courses_app.Services
             Video video = new Video(videoId, author, model.title, model.description);
 
             Course updatedCourse = await _courseRepository.AddVideoToCourse(model.courseId, video);
-            return updatedCourse;
+            CourseDto courseDto = new CourseDto(updatedCourse);
+            return courseDto;
         }
 
-        public async Task<List<Video>> GetCourseVideos(long courseId)
+        public async Task<List<VideoDto>> GetCourseVideos(long courseId)
         {
-            return await _courseRepository.GetCourseVideos(courseId);
+            List<Video> videos = await _courseRepository.GetCourseVideos(courseId);
+            var videoDtos = videos
+                .Select(video => new VideoDto(video))
+                .ToList();
+
+            return videoDtos;
         }
 
-        public async Task<List<Course>> GetAllPublicCourses()
+        public async Task<List<CourseDto>> GetAllPublicCourses()
         {
-            return await _courseRepository.GetAllPublicCourses();
+            List<Course> courses = await _courseRepository.GetAllPublicCourses();
+            var courseDtos = courses
+                .Select(course => new CourseDto(course))
+                .ToList();
+
+            return courseDtos;
         }
 
         public async Task<Course> Get(long id)
@@ -72,16 +88,17 @@ namespace Courses_app.Services
             return await _courseRepository.Get(id);
         }
 
-        public async Task<PurchasedCourse> GetPurchased(long courseId)
+        public async Task<CourseDto> GetPurchased(long courseId)
         {
             var course = await _courseRepository.Get(courseId);
-            PurchasedCourse purchasedCourse = new PurchasedCourse(course);
+            CourseDto purchasedCourse = new CourseDto(course);
             return purchasedCourse;
         }
 
-        public async Task<Course> PublishCourse(long courseId, PublishCourseRequest request)
+        public async Task<CourseDto> PublishCourse(long courseId, PublishCourseRequest request)
         {
-            return await _courseRepository.UpdateCourseStatusToPublic(courseId, request.Price);
+            Course publishedCourse = await _courseRepository.UpdateCourseStatusToPublic(courseId, request.Price);
+            return new CourseDto(publishedCourse);
         }
     }
 }
