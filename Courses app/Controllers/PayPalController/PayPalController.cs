@@ -30,24 +30,24 @@ namespace Courses_app.Controllers.PayPalController
         //    }
         //}
 
-        [HttpPost("execute-payment")]
-        public IActionResult ExecutePayment([FromBody] PaymentExecutionModel model)
-        {
-            if (string.IsNullOrEmpty(model.PaymentId) || string.IsNullOrEmpty(model.PayerId))
-            {
-                return BadRequest("PaymentId and PayerId cannot be null or empty.");
-            }
+        //[HttpPost("execute-payment")]
+        //public IActionResult ExecutePayment([FromBody] PaymentExecutionModel model)
+        //{
+        //    if (string.IsNullOrEmpty(model.PaymentId) || string.IsNullOrEmpty(model.PayerId))
+        //    {
+        //        return BadRequest("PaymentId and PayerId cannot be null or empty.");
+        //    }
 
-            try
-            {
-                var payment = _payPalService.ExecutePayment(model.PaymentId, model.PayerId);
-                return Ok(payment);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { Message = ex.Message, StackTrace = ex.StackTrace });
-            }
-        }
+        //    try
+        //    {
+        //        var payment = _payPalService.ExecutePayment(model.PaymentId, model.PayerId);
+        //        return Ok(payment);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { Message = ex.Message, StackTrace = ex.StackTrace });
+        //    }
+        //}
     }
 
 }

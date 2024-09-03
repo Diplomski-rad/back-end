@@ -62,17 +62,12 @@ namespace Courses_app.Repository
             }
         }
 
-        public async Task<User> GetByEmailAndPassword(string email, string password)
+        public async Task<User> GetByEmail(string email)
         {
             var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.Email == email);
 
-            if (user != null && user.Password == password)
-            {
-                return user;
-            }
-
-            return null;
+            return user;
         }
 
         public async Task<Author> GetAuthorById(long id)

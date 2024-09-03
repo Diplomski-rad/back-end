@@ -44,7 +44,7 @@ namespace Courses_app.Controllers
                 }
                 catch (Exception ex)
                 {
-                    return Unauthorized(ex.Message);
+                    return StatusCode(500, "An unexpected error occured");
                 }
             }
             else
