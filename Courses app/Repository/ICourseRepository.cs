@@ -6,6 +6,7 @@ namespace Courses_app.Repository
     {
         public Task<long> Add(Course course);
         public Task<Course> Get(long id);
+        public Task<List<Course>> GetCoursesByIds(List<long> ids);
         public Task<List<Course>> GetAuthorCourses(long authorId);
         public Task<Course> AddVideoToCourse(long courseId, Video video);
         public Task<List<Video>> GetCourseVideos(long courseId);

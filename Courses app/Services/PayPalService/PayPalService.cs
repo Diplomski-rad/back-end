@@ -29,16 +29,30 @@ namespace Courses_app.Services.PayPalService
             return accessToken;
         }
 
-        public async Task<Payment> CreatePayment(long courseId)
+        public async Task<Payment> CreatePayment(List<long> courseIds)
         {
             var accessToken = GetAccessToken();
             var apiContext = GetApiContext(accessToken);
 
-            var course = await _courseService.Get(courseId);
-           
-            
+            List<Course> courses = await _courseService.GetCoursesByIds(courseIds);
 
-            decimal amount = (decimal)course.Price;
+
+
+            decimal totalAmount = 0;
+            var items = new List<Item>();
+
+            foreach (Course course in courses)
+            {
+                totalAmount += (decimal)course.Price;
+
+                items.Add(new Item
+                {
+                    name = course.Name,
+                    currency = "USD",
+                    price = course.Price.ToString("F2"),
+                    quantity = "1"
+                });
+            }
 
             var payer = new Payer { payment_method = "paypal" };
             var redirectUrls = new RedirectUrls
@@ -48,27 +62,18 @@ namespace Courses_app.Services.PayPalService
             };
             var details = new Details
             {
-                subtotal = amount.ToString()
+                subtotal = totalAmount.ToString("F2"),
             };
             var amountObj = new Amount
             {
                 currency = "USD",
-                total = amount.ToString(),
+                total = totalAmount.ToString("F2"),
                 details = details
             };
 
             var itemList = new ItemList
             {
-                items = new List<Item>
-                {
-                    new Item
-                    {
-                        name = course.Name,
-                        currency = "USD",
-                        price = course.Price.ToString(),
-                        quantity = "1"
-                    }
-                }
+                items = items
             };
 
             var transaction = new Transaction
@@ -76,7 +81,7 @@ namespace Courses_app.Services.PayPalService
                 description = "Purchase of online course",
                 amount = amountObj,
                 item_list = itemList,
-                custom = course.Id.ToString()
+                custom = string.Join(",", courseIds)
             };
             var payment = new Payment
             {

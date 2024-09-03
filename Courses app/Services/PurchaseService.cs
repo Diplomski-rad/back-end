@@ -17,18 +17,18 @@ namespace Courses_app.Services
             _courseService = courseService;
         }
 
-        public async Task<long> CreatePurchase(CreatePurchaseModel model)
-        {
+        //public async Task<long> CreatePurchase(CreatePurchaseModel model)
+        //{
 
-            BasicUser user = await _userService.GetBasicUser(model.UserId);
-            Course course = await _courseService.Get(model.CourseId);
+        //    BasicUser user = await _userService.GetBasicUser(model.UserId);
+        //    Course course = await _courseService.Get(model.CourseId);
 
-            Purchase purchase = new Purchase();
-            purchase.User = user;
-            purchase.Course = course;
+        //    Purchase purchase = new Purchase();
+        //    purchase.User = user;
+        //    purchase.Course = course;
 
-            return await _purchaseRepository.Add(purchase);
-        }
+        //    return await _purchaseRepository.Add(purchase);
+        //}
 
         public async Task<List<CourseDto>> GetPurchasedCourses(long userId)
         {
@@ -39,6 +39,11 @@ namespace Courses_app.Services
                 .ToList();
 
             return purchasedCourseDtos;
+        }
+
+        public async Task<List<Purchase>> CreateMultiplePurchases(CreatePurchaseModel purchaseModel)
+        {
+            return await _purchaseRepository.CreateMultiplePurchases(purchaseModel);
         }
     }
 }

@@ -24,7 +24,7 @@ namespace Courses_app.Controllers
         {
             try
             {
-                var payment = await _payPalService.CreatePayment(model.courseId);
+                var payment = await _payPalService.CreatePayment(model.coursesIds);
                 return Ok(new { paymentId = payment.id, approvalUrl = payment.GetApprovalUrl() });
             }
             catch (Exception ex)
@@ -45,8 +45,10 @@ namespace Courses_app.Controllers
             {
                 var payment = await _payPalService.ExecutePayment(model.PaymentId, model.PayerId);
                 var transaction = payment.transactions.FirstOrDefault();
-                if (transaction != null && long.TryParse(transaction.custom, out var courseId))
+                if (transaction != null && !string.IsNullOrEmpty(transaction.custom))
                 {
+                    var courseIds = transaction.custom.Split(',').Select(id => long.Parse(id)).ToList();
+
                     var userIdClaim = HttpContext.User.FindFirst("id");
                     if (userIdClaim == null)
                     {
@@ -54,13 +56,11 @@ namespace Courses_app.Controllers
                     }
                     var userId = long.Parse(userIdClaim.Value);
 
-                    var purchaseModel = new CreatePurchaseModel
-                    {
-                        UserId = userId,
-                        CourseId = courseId
-                    };
-
-                    await _purchaseService.CreatePurchase(purchaseModel);
+                    var res = await _purchaseService.CreateMultiplePurchases(new CreatePurchaseModel { UserId = userId, CoursesIds = courseIds });
+                }
+                else
+                {
+                    return BadRequest("No course IDs found in transaction.");
                 }
 
                 return Ok("Successful payment");

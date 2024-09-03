@@ -95,6 +95,11 @@ namespace Courses_app.Services
             return await _courseRepository.Get(id);
         }
 
+        public async Task<List<Course>> GetCoursesByIds(List<long> ids)
+        {
+            return await _courseRepository.GetCoursesByIds(ids);
+        }
+
         public async Task<CourseDto> GetPurchased(long courseId)
         {
             var course = await _courseRepository.Get(courseId);

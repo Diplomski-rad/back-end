@@ -3,6 +3,6 @@
     public class CreatePurchaseModel
     {
         public long UserId { get; set; }
-        public long CourseId { get; set;}
+        public List<long> CoursesIds { get; set;}
     }
 }

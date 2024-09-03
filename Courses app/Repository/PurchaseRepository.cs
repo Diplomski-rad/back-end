@@ -1,4 +1,6 @@
-﻿using Courses_app.Models;
+﻿using Courses_app.Dto;
+using Courses_app.Exceptions;
+using Courses_app.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Courses_app.Repository
@@ -27,14 +29,37 @@ namespace Courses_app.Repository
         {
             var purchasedCourses = await _context.Purchases
                 .Where(p => p.User.Id == userId)
-                .Include(p => p.Course) // Include the Course itself first
-                .ThenInclude(c => c.Author) // Include the Author of the Course
-                .Include(p => p.Course) // Include the Course itself again for the Videos navigation
-                .ThenInclude(c => c.Videos) // Include the Videos of the Course
-                .Select(p => p.Course) // Now you can select the Course
-        .ToListAsync();
+                .Include(p => p.Course) 
+                .ThenInclude(c => c.Author) 
+                .Include(p => p.Course) 
+                .ThenInclude(c => c.Videos) 
+                .Select(p => p.Course) 
+            .ToListAsync();
 
             return purchasedCourses;
+        }
+
+        public async Task<List<Purchase>> CreateMultiplePurchases(CreatePurchaseModel purchaseModel)
+        {
+            var user = await _context.BasicUsers.FindAsync(purchaseModel.UserId);
+
+            if(user == null)
+            {
+                throw new RepositoryException("Cannot find user ith given id");
+            }
+
+
+            var purchaseTasks = purchaseModel.CoursesIds.Select(async courseId => new Purchase
+            {
+                User = user,
+                Course = await _context.Course.FindAsync(courseId)
+            }).ToList();
+
+            var purchases = await Task.WhenAll(purchaseTasks);
+
+            _context.Purchases.AddRange(purchases);
+            await _context.SaveChangesAsync();
+            return purchases.ToList();
         }
     }
 }

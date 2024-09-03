@@ -1,4 +1,5 @@
-﻿using Courses_app.Models;
+﻿using Courses_app.Dto;
+using Courses_app.Models;
 
 namespace Courses_app.Repository
 {
@@ -6,5 +7,6 @@ namespace Courses_app.Repository
     {
         public Task<long> Add(Purchase purchase);
         public Task<List<Course>> GetPurchasedCourses(long userId);
+        public Task<List<Purchase>> CreateMultiplePurchases(CreatePurchaseModel purchaseModel);
     }
 }

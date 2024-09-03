@@ -49,6 +49,34 @@ namespace Courses_app.Repository
             }
         }
 
+        public async Task<List<Course>> GetCoursesByIds(List<long> ids)
+        {
+            try
+            {
+                if (ids == null || !ids.Any())
+                {
+                    throw new ArgumentException("The list of IDs cannot be null or empty.");
+                }
+
+                var courses = await _context.Course
+                    .Where(c => ids.Contains(c.Id)) 
+                    .Include(c => c.Author)         
+                    .Include(c => c.Videos)         
+                    .ToListAsync();                 
+
+                if (courses.Count == 0)
+                {
+                    throw new NotFoundException("No courses found for the given IDs.");
+                }
+
+                return courses;
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new RepositoryException("An error occurred while retrieving the courses.", ex);
+            }
+        }
+
         public async Task<List<Course>> GetAuthorCourses(long authorId)
         {
             List<Course> courses = await _context.Course

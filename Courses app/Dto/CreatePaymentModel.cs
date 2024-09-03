@@ -2,6 +2,6 @@
 {
     public class CreatePaymentModel
     {
-        public long courseId { get; set; }
+        public List<long> coursesIds { get; set; }
     }
 }
