@@ -52,7 +52,7 @@ namespace Courses_app.Controllers
                     var userIdClaim = HttpContext.User.FindFirst("id");
                     if (userIdClaim == null)
                     {
-                        return Unauthorized("User ID not found in token.");
+                        return Unauthorized("User not found");
                     }
                     var userId = long.Parse(userIdClaim.Value);
 

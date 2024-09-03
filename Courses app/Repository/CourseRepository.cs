@@ -161,11 +161,18 @@ namespace Courses_app.Repository
             try
             {
                 var course = await _context.Course
+                    .Include(c => c.Author)
+                    .Include(c => c.Videos)
                     .FirstOrDefaultAsync(c => c.Id == courseId);
 
                 if (course == null)
                 {
                     throw new NotFoundException($"Course with id {courseId} not found.");
+                }
+
+                if(course.Videos.Count < 1)
+                {
+                    throw new BadDataException("A course that does not have a single video cannot be published");
                 }
 
                 course.Status = CourseStatus.PUBLISHED;

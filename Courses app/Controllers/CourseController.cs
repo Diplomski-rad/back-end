@@ -1,4 +1,5 @@
 ﻿using Courses_app.Dto;
+using Courses_app.Exceptions;
 using Courses_app.Models;
 using Courses_app.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -179,7 +180,14 @@ namespace Courses_app.Controllers
             {
                 var course = await _courseService.PublishCourse(courseId, request);
                 return Ok("Successfully publised");
-            }catch(Exception ex)
+            }
+            
+            catch(BadDataException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            
+            catch(Exception ex)
             {
                 throw;
             }
