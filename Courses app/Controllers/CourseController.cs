@@ -149,7 +149,25 @@ namespace Courses_app.Controllers
             catch(Exception ex) {
                 return StatusCode(500, ex.Message);
             }
-        } 
+        }
+
+        [HttpPost("filter")]
+        public async Task<IActionResult> FilterCourses([FromBody] FilterDto filter)
+        {
+            if (filter == null)
+            {
+                return BadRequest("Filter data is required.");
+            }
+            try
+            {
+                var courses = await _courseService.FilterCourses(filter);
+                return Ok(courses);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
 
         [Authorize(Policy = "UserOnly")]
         [HttpGet("single-purchased/{courseId}")]

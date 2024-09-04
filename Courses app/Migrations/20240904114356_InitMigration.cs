@@ -10,6 +10,19 @@ namespace Courses_app.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "CategoryGroup",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CategoryGroup", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -33,6 +46,25 @@ namespace Courses_app.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Category",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    CategoryGroupId = table.Column<long>(type: "bigint", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Category", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Category_CategoryGroup_CategoryGroupId",
+                        column: x => x.CategoryGroupId,
+                        principalTable: "CategoryGroup",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Course",
                 columns: table => new
                 {
@@ -43,7 +75,8 @@ namespace Courses_app.Migrations
                     AuthorId = table.Column<long>(type: "bigint", nullable: false),
                     Price = table.Column<double>(type: "double precision", nullable: false),
                     PlaylistId = table.Column<string>(type: "text", nullable: false),
-                    Status = table.Column<int>(type: "integer", nullable: false)
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    DifficultyLevel = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -52,6 +85,30 @@ namespace Courses_app.Migrations
                         name: "FK_Course_Users_AuthorId",
                         column: x => x.AuthorId,
                         principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CategoryCourse",
+                columns: table => new
+                {
+                    CategoriesId = table.Column<long>(type: "bigint", nullable: false),
+                    CoursesId = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CategoryCourse", x => new { x.CategoriesId, x.CoursesId });
+                    table.ForeignKey(
+                        name: "FK_CategoryCourse_Category_CategoriesId",
+                        column: x => x.CategoriesId,
+                        principalTable: "Category",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CategoryCourse_Course_CoursesId",
+                        column: x => x.CoursesId,
+                        principalTable: "Course",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -109,6 +166,16 @@ namespace Courses_app.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Category_CategoryGroupId",
+                table: "Category",
+                column: "CategoryGroupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CategoryCourse_CoursesId",
+                table: "CategoryCourse",
+                column: "CoursesId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Course_AuthorId",
                 table: "Course",
                 column: "AuthorId");
@@ -149,13 +216,22 @@ namespace Courses_app.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "CategoryCourse");
+
+            migrationBuilder.DropTable(
                 name: "Purchases");
 
             migrationBuilder.DropTable(
                 name: "Video");
 
             migrationBuilder.DropTable(
+                name: "Category");
+
+            migrationBuilder.DropTable(
                 name: "Course");
+
+            migrationBuilder.DropTable(
+                name: "CategoryGroup");
 
             migrationBuilder.DropTable(
                 name: "Users");

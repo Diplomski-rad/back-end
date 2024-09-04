@@ -15,6 +15,8 @@ namespace Courses_app
         public DbSet<Video> Video { get; set; }
         public DbSet<Course> Course { get; set; } 
         public DbSet<Purchase> Purchases { get; set; }
+        public DbSet<Category> Category { get; set; }
+        public DbSet<CategoryGroup> CategoryGroup { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

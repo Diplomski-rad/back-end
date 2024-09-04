@@ -1,6 +1,9 @@
-﻿using Courses_app.Exceptions;
+﻿using Courses_app.Dto;
+using Courses_app.Exceptions;
 using Courses_app.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Courses_app.Repository
 {
@@ -33,7 +36,8 @@ namespace Courses_app.Repository
             {
                 var course = await _context.Course
                     .Include(c => c.Author)   
-                    .Include(c => c.Videos)  
+                    .Include(c => c.Videos)
+                    .Include(c => c.Categories)
                     .FirstOrDefaultAsync(c => c.Id == id);
 
                 if (course == null)
@@ -82,6 +86,7 @@ namespace Courses_app.Repository
             List<Course> courses = await _context.Course
                 .Include(c => c.Author)
                 .Include(c => c.Videos)
+                .Include(c => c.Categories)
                 .Where(c => c.Author.Id == authorId).ToListAsync();
             return courses;
         }
@@ -130,6 +135,7 @@ namespace Courses_app.Repository
             {
                 List<Course> courses = await _context.Course
                 .Include(c => c.Author)
+                .Include(c=>c.Categories)
                 .Where(c => c.Status == CourseStatus.PUBLISHED).ToListAsync();
                 return courses;
             }
@@ -148,12 +154,84 @@ namespace Courses_app.Repository
             }
             try
             {
-                List<Course> courses = await _context.Course.Include(c => c.Author).Where(c => c.Status == CourseStatus.PUBLISHED && c.Name.Trim().ToLower().Contains(query.Trim().ToLower())).ToListAsync();
+                List<Course> courses = await _context.Course
+                    .Include(c => c.Author)
+                    .Include(c => c.Categories)
+                    .Where(c => c.Status == CourseStatus.PUBLISHED && c.Name.Trim().ToLower().Contains(query.Trim().ToLower())).ToListAsync();
                 return courses;
             }catch (Exception ex)
             {
                 throw new RepositoryException("Ann error occured while retrieving searched courses.", ex);
             }
+        }
+
+        public async Task<List<Course>> FilterCourses(FilterDto filter)
+        {
+            if (filter == null || filter.Categories == null || (string.IsNullOrWhiteSpace(filter.DifficultyLevel) && filter.Categories.Count == 0))
+            {
+                return await GetAllPublicCourses();
+            }
+            else if (string.IsNullOrWhiteSpace(filter.DifficultyLevel) && filter.Categories.Count > 0)
+            {
+                try
+                {
+                    List<long> categoryIds = filter.Categories.Select(c => c.Id).ToList();
+
+                    List<Course> courses = await _context.Course
+                        .Include(c => c.Author)
+                        .Include(c => c.Categories)
+                        .Where(c => c.Status == CourseStatus.PUBLISHED && c.Categories.Any(cat => categoryIds.Contains(cat.Id)))
+                        .ToListAsync();
+
+                    return courses;
+                }
+                catch (Exception ex)
+                {
+                    throw new RepositoryException("Ann error occured while retrieving searched courses.", ex);
+                }
+            }
+            else if(!string.IsNullOrWhiteSpace(filter.DifficultyLevel) && filter.Categories.Count == 0)
+            {
+                if (Enum.TryParse(filter.DifficultyLevel, out DifficultyLevel difficultyLevel))
+                {
+                    List<Course> courses = await _context.Course
+                        .Include(c => c.Author)
+                        .Include(c => c.Categories)
+                        .Where(c => c.Status == CourseStatus.PUBLISHED && c.DifficultyLevel == difficultyLevel)
+                        .ToListAsync();
+
+                    return courses;
+                }
+                else
+                {
+                    // Handle the case where parsing the difficulty level failed
+                    throw new ArgumentException("Invalid difficulty level provided.");
+                }
+
+            }
+            else
+            {
+                List<long> categoryIds = filter.Categories.Select(c => c.Id).ToList();
+
+                if (Enum.TryParse(filter.DifficultyLevel, out DifficultyLevel difficultyLevel))
+                {
+                    List<Course> courses = await _context.Course
+                        .Include(c => c.Author)
+                        .Include(c => c.Categories)
+                        .Where(c => c.Status == CourseStatus.PUBLISHED &&
+                                    c.Categories.Any(cat => categoryIds.Contains(cat.Id)) &&
+                                    c.DifficultyLevel == difficultyLevel)
+                        .ToListAsync();
+
+                    return courses;
+                }
+                else
+                {
+                    // Handle the case where parsing the difficulty level failed
+                    throw new ArgumentException("Invalid difficulty level provided.");
+                }
+            }
+            
         }
 
         public async Task<Course> UpdateCourseStatusToPublic(long courseId, double price)

@@ -11,6 +11,7 @@ namespace Courses_app.Dto
         public AuthorDto Author { get; set; }
         public List<VideoDto> Videos { get; set; }
         public string Status { get; set; }
+        public List<CategoryDto> Categories { get; set; }
 
         public CourseDto(Course course)
         {
@@ -21,6 +22,7 @@ namespace Courses_app.Dto
             Author = new AuthorDto(course.Author);
             Videos = course.Videos.Select(video => new VideoDto(video)).ToList();
             Status = course.Status.ToString();
+            Categories = course.Categories.Select(category => new CategoryDto(category)).ToList();
         }
     }
 

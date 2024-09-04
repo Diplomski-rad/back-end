@@ -11,6 +11,7 @@ namespace Courses_app.Services
         public Task<List<VideoDto>> GetCourseVideos(long courseId);
         public Task<List<CourseDto>> GetAllPublicCourses();
         public Task<List<CourseDto>> SearchCourse(string query);
+        public Task<List<CourseDto>> FilterCourses(FilterDto filter);
         public Task<Course> Get(long id);
         public Task<List<Course>> GetCoursesByIds(List<long> ids);
         public Task<CourseDto> GetPurchased(long courseId);

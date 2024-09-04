@@ -32,7 +32,9 @@ namespace Courses_app.Repository
                 .Include(p => p.Course) 
                 .ThenInclude(c => c.Author) 
                 .Include(p => p.Course) 
-                .ThenInclude(c => c.Videos) 
+                .ThenInclude(c => c.Videos)
+                .Include(p => p.Course)
+                .ThenInclude(c => c.Categories)
                 .Select(p => p.Course) 
             .ToListAsync();
 

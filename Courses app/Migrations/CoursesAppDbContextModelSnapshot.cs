@@ -22,6 +22,60 @@ namespace Courses_app.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("CategoryCourse", b =>
+                {
+                    b.Property<long>("CategoriesId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CoursesId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("CategoriesId", "CoursesId");
+
+                    b.HasIndex("CoursesId");
+
+                    b.ToTable("CategoryCourse");
+                });
+
+            modelBuilder.Entity("Courses_app.Models.Category", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("CategoryGroupId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryGroupId");
+
+                    b.ToTable("Category");
+                });
+
+            modelBuilder.Entity("Courses_app.Models.CategoryGroup", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CategoryGroup");
+                });
+
             modelBuilder.Entity("Courses_app.Models.Course", b =>
                 {
                     b.Property<long>("Id")
@@ -36,6 +90,9 @@ namespace Courses_app.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("DifficultyLevel")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -188,6 +245,28 @@ namespace Courses_app.Migrations
                     b.HasDiscriminator().HasValue("BasicUser");
                 });
 
+            modelBuilder.Entity("CategoryCourse", b =>
+                {
+                    b.HasOne("Courses_app.Models.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoriesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Courses_app.Models.Course", null)
+                        .WithMany()
+                        .HasForeignKey("CoursesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Courses_app.Models.Category", b =>
+                {
+                    b.HasOne("Courses_app.Models.CategoryGroup", null)
+                        .WithMany("Categories")
+                        .HasForeignKey("CategoryGroupId");
+                });
+
             modelBuilder.Entity("Courses_app.Models.Course", b =>
                 {
                     b.HasOne("Courses_app.Models.Author", "Author")
@@ -231,6 +310,11 @@ namespace Courses_app.Migrations
                         .HasForeignKey("CourseId");
 
                     b.Navigation("Author");
+                });
+
+            modelBuilder.Entity("Courses_app.Models.CategoryGroup", b =>
+                {
+                    b.Navigation("Categories");
                 });
 
             modelBuilder.Entity("Courses_app.Models.Course", b =>

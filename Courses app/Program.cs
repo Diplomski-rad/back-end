@@ -69,6 +69,7 @@ builder.Services.AddScoped<IDailymotionAuthService, DailymotionAuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IPurchaseService, PurchaseService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 builder.Services.AddScoped<IPayPalService,PayPalService>();
 
@@ -77,6 +78,7 @@ builder.Services.AddScoped<IPayPalService,PayPalService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<IPurchaseRepository, PurchaseRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 var app = builder.Build();
 

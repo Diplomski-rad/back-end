@@ -90,6 +90,24 @@ namespace Courses_app.Services
             return courseDtos;
         }
 
+        public async Task<List<CourseDto>> FilterCourses(FilterDto filter)
+        {
+            if(filter.Categories == null || (!Enum.TryParse(filter.DifficultyLevel, out DifficultyLevel difficultyLevel) && filter.Categories.Count == 0))
+            {
+                return await GetAllPublicCourses();
+            }
+            else
+            {
+
+                List<Course> courses = await _courseRepository.FilterCourses(filter);
+                var courseDtos = courses
+                .Select(course => new CourseDto(course))
+                .ToList();
+
+                return courseDtos;
+            }
+        }
+
         public async Task<Course> Get(long id)
         {
             return await _courseRepository.Get(id);
