@@ -194,6 +194,10 @@ namespace Courses_app.Controllers
         [HttpPut("{courseId}/publish")]
         public async Task<IActionResult> PublishCourse(long courseId, PublishCourseRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             try
             {
                 var course = await _courseService.PublishCourse(courseId, request);

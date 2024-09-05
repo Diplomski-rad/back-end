@@ -11,9 +11,13 @@ namespace Courses_app.Repository
     {
         private readonly CoursesAppDbContext _context;
 
-        public CourseRepository(CoursesAppDbContext context)
+        private readonly ICategoryRepository _categoryRepository;
+
+        public CourseRepository(CoursesAppDbContext context, ICategoryRepository categoryRepository)
         {
             _context = context;
+            _categoryRepository = categoryRepository;
+
         }
         public async Task<long> Add(Course course)
         {
@@ -234,13 +238,25 @@ namespace Courses_app.Repository
             
         }
 
-        public async Task<Course> UpdateCourseStatusToPublic(long courseId, double price)
+        public async Task<Course> UpdateCourseStatusToPublic(long courseId, double price, DifficultyLevel difficultyLevel, List<CategoryDto> categoriesDtos)
         {
+
             try
             {
+
+                List<long> categoryIds = categoriesDtos.Select(c => c.Id).ToList();
+
+                var categories = await _categoryRepository.GetCategories(categoryIds);
+
+                if(categories.Count < categoriesDtos.Count)
+                {
+                    throw new NotFoundException($"Some of the passed categories do not exist");
+                }
+
                 var course = await _context.Course
-                    .Include(c => c.Author)
+                    .Include(c => c.Categories)
                     .Include(c => c.Videos)
+                    .Include(c => c.Author)
                     .FirstOrDefaultAsync(c => c.Id == courseId);
 
                 if (course == null)
@@ -255,6 +271,9 @@ namespace Courses_app.Repository
 
                 course.Status = CourseStatus.PUBLISHED;
                 course.Price = price;
+                course.DifficultyLevel = difficultyLevel;
+                course.Categories = categories;
+
                 await _context.SaveChangesAsync();
 
                 return course;

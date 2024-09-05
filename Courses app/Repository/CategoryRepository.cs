@@ -38,5 +38,19 @@ namespace Courses_app.Repository
                 throw new RepositoryException("An error occurred while retrieving category groups", ex);
             }
         }
+
+        public async Task<List<Category>> GetCategories(List<long> ids)
+        {
+            try
+            {
+                List<Category> categories = await _context.Category
+                    .Where(c => ids.Contains(c.Id)).ToListAsync();
+                return categories;
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("An error occurred while retrieving category groups", ex);
+            }
+        }
     }
 }

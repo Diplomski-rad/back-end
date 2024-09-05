@@ -127,8 +127,16 @@ namespace Courses_app.Services
 
         public async Task<CourseDto> PublishCourse(long courseId, PublishCourseRequest request)
         {
-            Course publishedCourse = await _courseRepository.UpdateCourseStatusToPublic(courseId, request.Price);
-            return new CourseDto(publishedCourse);
+            if (Enum.TryParse(request.DifficultyLevel, out DifficultyLevel difficultyLevel))
+            {
+                Course publishedCourse = await _courseRepository.UpdateCourseStatusToPublic(courseId, request.Price, difficultyLevel, request.Categories);
+                return new CourseDto(publishedCourse);
+            }
+            else
+            {
+                throw new Exception("Invalid difficulty level");
+            }
+                
         }
 
         
