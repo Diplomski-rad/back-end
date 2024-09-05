@@ -1,5 +1,7 @@
 ﻿using Courses_app.Dto;
+using Courses_app.Exceptions;
 using Courses_app.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Courses_app.Controllers
@@ -17,14 +19,33 @@ namespace Courses_app.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] RatingDto rating)
+        [Authorize(Policy ="UserOnly")]
+        public async Task<IActionResult> Add([FromBody] AddRatingRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             try
             {
-                await _ratingService.Add(rating);
+                var userIdClaim = HttpContext.User.FindFirst("id");
+                if (userIdClaim == null)
+                {
+                    return Unauthorized("User not found");
+                }
+                var userId = long.Parse(userIdClaim.Value);
+
+                
+
+                await _ratingService.Add(new RatingDto { UserId = userId, CourseId = request.CourseId, RatingValue = request.RatingValue});
                 return Ok();
 
-            }catch (Exception ex)
+            }catch(BadDataException ex)
+            {
+                return BadRequest("The given user or course does not exist");
+            }
+            
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message, ex);
             }
@@ -45,10 +66,18 @@ namespace Courses_app.Controllers
         //}
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] long userId, long courseId)
+        [Authorize(Policy = "UserOnly")]
+        public async Task<IActionResult> Get([FromQuery] long courseId)
         {
             try
             {
+                var userIdClaim = HttpContext.User.FindFirst("id");
+                if (userIdClaim == null)
+                {
+                    return Unauthorized("User not found");
+                }
+                var userId = long.Parse(userIdClaim.Value);
+
                 var rating = await _ratingService.GetUsersRatingForCourse(userId, courseId);
                 if(rating == null)
                 {

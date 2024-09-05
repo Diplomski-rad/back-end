@@ -2,6 +2,7 @@
 using Courses_app.Models;
 using Courses_app.Services;
 using Courses_app.Services.PayPalService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Courses_app.Controllers
@@ -20,6 +21,7 @@ namespace Courses_app.Controllers
         }
 
         [HttpPost("create-payment")]
+        [Authorize(Policy = "UserOnly")]
         public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentModel model)
         {
             try
@@ -34,6 +36,7 @@ namespace Courses_app.Controllers
         }
 
         [HttpPost("checkout")]
+        [Authorize(Policy = "UserOnly")]
         public async Task<IActionResult> Checkout([FromBody] PaymentExecutionModel model)
         {
             if (model == null)

@@ -2,6 +2,7 @@
 using Courses_app.Exceptions;
 using Courses_app.Models;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace Courses_app.Repository
 {
@@ -39,7 +40,12 @@ namespace Courses_app.Repository
             }
             catch(DbUpdateException ex)
             {
-                throw new Exception(ex.Message);
+                if (ex.InnerException is PostgresException postgresEx && postgresEx.SqlState == "23503")
+                {
+                    throw new BadDataException("Foreign key violation: invalid Course or User", postgresEx);
+                }
+
+                throw new Exception(ex.Message, ex);
             }
         }
 
