@@ -17,6 +17,7 @@ namespace Courses_app
         public DbSet<Purchase> Purchases { get; set; }
         public DbSet<Category> Category { get; set; }
         public DbSet<CategoryGroup> CategoryGroup { get; set; }
+        public DbSet<Rating > Rating { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -31,6 +32,15 @@ namespace Courses_app
                 .HasIndex(u => u.Email)
                 .IsUnique();
 
+            modelBuilder.Entity<Rating>()
+            .HasOne(r => r.Course)
+            .WithMany(c => c.Ratings)
+            .HasForeignKey(r => r.CourseId);
+
+            modelBuilder.Entity<Rating>()
+                .HasOne(r => r.User)
+                .WithMany()
+                .HasForeignKey(r => r.UserId);
         }
     }
 }

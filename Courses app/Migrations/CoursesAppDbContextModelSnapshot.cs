@@ -138,6 +138,35 @@ namespace Courses_app.Migrations
                     b.ToTable("Purchases");
                 });
 
+            modelBuilder.Entity("Courses_app.Models.Rating", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CourseId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("RatingDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("RatingValue")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Rating");
+                });
+
             modelBuilder.Entity("Courses_app.Models.User", b =>
                 {
                     b.Property<long>("Id")
@@ -297,6 +326,25 @@ namespace Courses_app.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Courses_app.Models.Rating", b =>
+                {
+                    b.HasOne("Courses_app.Models.Course", "Course")
+                        .WithMany("Ratings")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Courses_app.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Courses_app.Models.Video", b =>
                 {
                     b.HasOne("Courses_app.Models.Author", "Author")
@@ -319,6 +367,8 @@ namespace Courses_app.Migrations
 
             modelBuilder.Entity("Courses_app.Models.Course", b =>
                 {
+                    b.Navigation("Ratings");
+
                     b.Navigation("Videos");
                 });
 #pragma warning restore 612, 618

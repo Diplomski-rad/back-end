@@ -12,6 +12,7 @@
         public CourseStatus Status { get; set; }
         public ICollection<Category> Categories { get; set; } = new List<Category>();
         public DifficultyLevel DifficultyLevel { get; set; }
+        public ICollection<Rating> Ratings { get; set; } = new List<Rating>();
 
         public Course(){}
 
