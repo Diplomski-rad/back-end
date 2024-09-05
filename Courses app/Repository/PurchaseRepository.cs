@@ -43,25 +43,36 @@ namespace Courses_app.Repository
 
         public async Task<List<Purchase>> CreateMultiplePurchases(CreatePurchaseModel purchaseModel)
         {
-            var user = await _context.BasicUsers.FindAsync(purchaseModel.UserId);
-
-            if(user == null)
+            try
             {
-                throw new RepositoryException("Cannot find user ith given id");
+                var user = await _context.BasicUsers.FindAsync(purchaseModel.UserId);
+
+                if (user == null)
+                {
+                    throw new RepositoryException("Cannot find user ith given id");
+                }
+
+
+                var purchaseTasks = purchaseModel.CoursesIds.Select(async courseId => new Purchase
+                {
+                    User = user,
+                    Course = await _context.Course.FindAsync(courseId),
+                    PaymentId = purchaseModel.PaymentId,
+                    PayerId = purchaseModel.PayerId,
+                    PaymentMethod = purchaseModel.PaymentMethod
+                }).ToList();
+
+                var purchases = await Task.WhenAll(purchaseTasks);
+
+                _context.Purchases.AddRange(purchases);
+                await _context.SaveChangesAsync();
+                return purchases.ToList();
             }
-
-
-            var purchaseTasks = purchaseModel.CoursesIds.Select(async courseId => new Purchase
+            catch (DbUpdateException ex)
             {
-                User = user,
-                Course = await _context.Course.FindAsync(courseId)
-            }).ToList();
-
-            var purchases = await Task.WhenAll(purchaseTasks);
-
-            _context.Purchases.AddRange(purchases);
-            await _context.SaveChangesAsync();
-            return purchases.ToList();
+                throw new Exception(ex.Message, ex);
+            }
+            
         }
     }
 }

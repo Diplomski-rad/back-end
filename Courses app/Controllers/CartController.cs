@@ -56,8 +56,15 @@ namespace Courses_app.Controllers
                     }
                     var userId = long.Parse(userIdClaim.Value);
 
-                    var res = await _purchaseService.CreateMultiplePurchases(new CreatePurchaseModel { UserId = userId, CoursesIds = courseIds });
-                }
+                    var res = await _purchaseService.CreateMultiplePurchases(new CreatePurchaseModel 
+                                                                                { 
+                                                                                    UserId = userId,
+                                                                                    CoursesIds = courseIds,
+                                                                                    PaymentId = payment.id,
+                                                                                    PayerId = payment.payer.payer_info.payer_id,
+                                                                                    PaymentMethod = payment.payer.payment_method 
+                                                                                });
+                    }
                 else
                 {
                     return BadRequest("No course IDs found in transaction.");
