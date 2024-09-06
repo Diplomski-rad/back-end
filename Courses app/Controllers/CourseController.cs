@@ -119,11 +119,20 @@ namespace Courses_app.Controllers
             }
         }
 
-        [HttpGet("purchased/{userId}")]
-        public async Task<IActionResult> GetPurchasedCourses(long userId)
+        [Authorize(Policy ="UserOnly")]
+        [HttpGet("purchased")]
+        public async Task<IActionResult> GetPurchasedCourses()
         {
             try
             {
+                var userIdClaim = HttpContext.User.FindFirst("id");
+                if (userIdClaim == null)
+                {
+                    return Unauthorized("User not found");
+                }
+                var userId = long.Parse(userIdClaim.Value);
+
+
                 List<CourseDto> res = await _purchaseService.GetPurchasedCourses(userId);
                 if (res != null)
                 {
@@ -175,13 +184,19 @@ namespace Courses_app.Controllers
         {
             try
             {
-                var course = await _courseService.GetPurchased(courseId);
-                if (course != null)
+                var userIdClaim = HttpContext.User.FindFirst("id");
+                if (userIdClaim == null)
                 {
-                    return Ok(course);
+                    return Unauthorized("User not found");
                 }
+                var userId = long.Parse(userIdClaim.Value);
 
-                return StatusCode(500, "An unexpected error occurred while retriving courses. Please try again later.");
+                var course = await _purchaseService.GetPurchasedCourse(userId, courseId);
+                if (course == null)
+                {
+                    return Ok(null);
+                }
+                return Ok(course);
 
             }
             catch (Exception ex)

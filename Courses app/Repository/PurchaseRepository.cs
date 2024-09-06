@@ -41,6 +41,33 @@ namespace Courses_app.Repository
             return purchasedCourses;
         }
 
+        public async Task<Course> GetPurchasedCourse(long userId, long courseId)
+        {
+            try
+            {
+                var purchase = await _context.Purchases
+                    .Include(p => p.Course)
+                    .ThenInclude(c => c.Author)
+                    .Include(p => p.Course)
+                    .ThenInclude(c => c.Videos)
+                    .Include(p => p.Course)
+                    .ThenInclude(c => c.Categories)
+                    .FirstOrDefaultAsync(p => p.User.Id == userId && p.Course.Id == courseId);
+
+                if(purchase == null)
+                {
+                    return null;
+                }
+
+                return purchase.Course;
+
+
+            }catch(Exception ex)
+            {
+                throw new RepositoryException("An unexpected error occured while retrieving course.");
+            }
+        }
+
         public async Task<List<Purchase>> CreateMultiplePurchases(CreatePurchaseModel purchaseModel)
         {
             try

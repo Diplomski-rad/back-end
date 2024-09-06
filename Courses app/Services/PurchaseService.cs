@@ -45,5 +45,16 @@ namespace Courses_app.Services
         {
             return await _purchaseRepository.CreateMultiplePurchases(purchaseModel);
         }
+
+        public async Task<CourseDto> GetPurchasedCourse(long userId, long courseId)
+        {
+            var course = await _purchaseRepository.GetPurchasedCourse(userId, courseId);
+            if(course == null)
+            {
+                return null;
+            }
+
+            return new CourseDto(course);
+        }
     }
 }
