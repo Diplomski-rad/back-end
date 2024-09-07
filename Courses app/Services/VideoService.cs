@@ -179,8 +179,39 @@ namespace Courses_app.Services
             {
                 throw;
             }
+        }
 
+        public async Task<string> UpdatePlaylist(string playlistId, string name)
+        {
+            TokenResponse tokenResponse = await _auth.GetAccessToken();
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.Access_token);
 
+            try
+            {
+
+                var response = await client.PostAsync($"https://api.dailymotion.com/playlist/{playlistId}?name={name}", null);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    var playlistResponse = JsonConvert.DeserializeObject<PlaylistReesponse>(json); // Define VideoResponse class based on API response
+                    return playlistResponse.id;
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Failed to create playlist: {response.StatusCode} - {errorContent}");
+                }
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Forbidden)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
 

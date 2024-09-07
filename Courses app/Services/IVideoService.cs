@@ -6,6 +6,7 @@ namespace Courses_app.Services
     {
         public Task<string> UploadVideo(Stream videoStream, string title, string playlistId);
         public Task<string> CreatePlaylist(string name);
+        public Task<string> UpdatePlaylist(string playlistId, string name);
         public Task<string> GetAccessToken();
         public Task<string> GetPlayerForVideo(string videoId);
 

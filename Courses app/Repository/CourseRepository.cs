@@ -58,6 +58,25 @@ namespace Courses_app.Repository
             }
         }
 
+        public async Task<Course> GetAuthorCourse(long authorId, long courseId)
+        {
+            try
+            {
+                var course = await _context.Course
+                    .Include(c => c.Author)
+                    .Include(c => c.Videos)
+                    .Include(c => c.Categories)
+                    .Include(c => c.Ratings)
+                    .FirstOrDefaultAsync(c => c.Id == courseId && c.Author.Id == authorId);
+
+                return course;
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new RepositoryException("An error occurred while retrieving the course.", ex);
+            }
+        }
+
         public async Task<List<Course>> GetCoursesByIds(List<long> ids)
         {
             try
@@ -290,6 +309,34 @@ namespace Courses_app.Repository
             }
         }
 
-        
+        public async Task<Course> UpdateNameAndDescription(long userId, long courseId, string name, string description)
+        {
+
+            try
+            {
+
+                var course = await _context.Course
+                    .Include(c => c.Author)
+                    .FirstOrDefaultAsync(c => c.Id == courseId && c.Author.Id == userId && c.Status == CourseStatus.DRAFT);
+
+                if (course == null)
+                {
+                    return null;
+                }
+
+                course.Name = name;
+                course.Description = description;
+
+                await _context.SaveChangesAsync();
+
+                return course;
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new RepositoryException("An error occurred while updating the course status.", ex);
+            }
+        }
+
+
     }
 }

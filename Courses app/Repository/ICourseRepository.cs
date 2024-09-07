@@ -7,6 +7,7 @@ namespace Courses_app.Repository
     {
         public Task<long> Add(Course course);
         public Task<Course> Get(long id);
+        public Task<Course> GetAuthorCourse(long authorId, long courseId);
         public Task<List<Course>> GetCoursesByIds(List<long> ids);
         public Task<List<Course>> GetAuthorCourses(long authorId);
         public Task<Course> AddVideoToCourse(long courseId, Video video);
@@ -15,6 +16,7 @@ namespace Courses_app.Repository
         public Task<List<Course>> SearchCourse(string query);
         public Task<List<Course>> FilterCourses(FilterDto filter);
         public Task<Course> UpdateCourseStatusToPublic(long courseId, double price, DifficultyLevel difficultyLevel, List<CategoryDto> categories);
+        public Task<Course> UpdateNameAndDescription(long userId, long courseId, string name, string description);
 
     }
 }

@@ -40,7 +40,34 @@ namespace Courses_app.Controllers
             }
         }
 
-        [HttpGet("author/{authorId}")]
+        [Authorize(Policy = "AuthorOnly")]
+        [HttpGet("author/{courseId}")]
+        public async Task<IActionResult> GetAuthorCourse(long courseId)
+        {
+            try
+            {
+                var userIdClaim = HttpContext.User.FindFirst("id");
+                if (userIdClaim == null)
+                {
+                    return Unauthorized("User not found");
+                }
+                var userId = long.Parse(userIdClaim.Value);
+
+                var course = await _courseService.GetAuthorCourse(userId, courseId);
+                if (course == null)
+                {
+                    return NotFound("Author don't own this course");
+                }
+                return Ok(course);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An unexpected error occurred while retriving courses. Please try again later.");
+            }
+        }
+
+        [HttpGet("author/courses/{authorId}")]
         public async Task<IActionResult> GetAuthorCourses(long authorId)
         {
             try
@@ -215,6 +242,13 @@ namespace Courses_app.Controllers
             }
             try
             {
+                var userIdClaim = HttpContext.User.FindFirst("id");
+                if (userIdClaim == null)
+                {
+                    return Unauthorized("User not found");
+                }
+                var userId = long.Parse(userIdClaim.Value);
+
                 var course = await _courseService.PublishCourse(courseId, request);
                 return Ok("Successfully publised");
             }
@@ -225,6 +259,46 @@ namespace Courses_app.Controllers
             }
             
             catch(Exception ex)
+            {
+                throw;
+            }
+        }
+
+        [Authorize(Policy = "AuthorOnly")]
+        [HttpPut("{courseId}/update")]
+        public async Task<IActionResult> UpdateNameAndDescription(long courseId, UpdateNameAndDescriptionDto request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var userIdClaim = HttpContext.User.FindFirst("id");
+                if (userIdClaim == null)
+                {
+                    return Unauthorized("User not found");
+                }
+                var userId = long.Parse(userIdClaim.Value);
+
+                var course = await _courseService.UpdateNameAndDescription(userId, courseId, request.Name, request.Description);
+                if(course == null)
+                {
+                    return NotFound("The current author does not own this course");
+                }
+                else
+                {
+                    return Ok("Successfully updated");
+                }
+                
+            }
+
+            catch (BadDataException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            catch (Exception ex)
             {
                 throw;
             }

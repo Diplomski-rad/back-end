@@ -40,6 +40,18 @@ namespace Courses_app.Services
 
         }
 
+        public async Task<CourseDto> GetAuthorCourse(long authorId, long courseId)
+        {
+            var course = await _courseRepository.GetAuthorCourse(authorId, courseId);
+            if(course == null)
+            {
+                return null;
+            }
+
+            return new CourseDto(course);
+
+        }
+
         public async Task<List<CourseDto>> GetAuthorCourses(long authorId)
         {
             List<Course> courses = await _courseRepository.GetAuthorCourses(authorId);
@@ -139,6 +151,20 @@ namespace Courses_app.Services
                 
         }
 
-        
+        public async Task<Course> UpdateNameAndDescription(long userId, long courseId, string name, string description)
+        {
+            var course = await _courseRepository.UpdateNameAndDescription(userId, courseId,name,description);
+            var playlistId = await _videoService.UpdatePlaylist(course.PlaylistId, name);
+
+            if(course == null)
+            {
+                return null;
+            }
+
+            return course;
+        }
+
+
+
     }
 }
