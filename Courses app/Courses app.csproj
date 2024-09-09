@@ -25,6 +25,7 @@
   <ItemGroup>
     <Folder Include="Migrations\" />
     <Folder Include="Config\" />
+    <Folder Include="Images\" />
   </ItemGroup>
 
 </Project>

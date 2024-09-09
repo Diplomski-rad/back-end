@@ -1,6 +1,8 @@
 ﻿using BCrypt.Net;
+using Courses_app.Dto;
 using Courses_app.Models;
 using Courses_app.Repository;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Courses_app.Services
 {
@@ -33,10 +35,41 @@ namespace Courses_app.Services
             return null;
         }
 
-        public Task<BasicUser> GetBasicUser(long id)
+        public async Task<User> ChangePassword(long id, ChangePassordRequest request)
         {
-            return _repository.GetBasicUser(id);
+            var user = await _repository.Get(id);
+            if (user != null && BCrypt.Net.BCrypt.Verify(request.oldPassword, user.Password))
+            {
+                var updatedUser = await _repository.ChangePassword(id, EncodePassword(request.newPassword));
+                return updatedUser;
+            }
+
+            return null;
         }
+
+        public async Task<BasicUserDto> GetBasicUser(long id)
+        {
+            var user = await _repository.GetBasicUser(id);
+            return new BasicUserDto(user);
+        }
+
+
+
+        public async Task<AuthorDetailsDto> GetAuthor(long id)
+        {
+            var author = await _repository.GetAuthorById(id);
+            return new AuthorDetailsDto(author);
+        }
+
+
+        public async Task<User> UpdateUser(long userId, UpdateUserRequest request, UserRole role)
+        {
+            return await _repository.UpdateUser(userId, request.Name, request.Surname, request.Username, role);
+        }
+
+
+
+
 
         private string EncodePassword(string password)
         {

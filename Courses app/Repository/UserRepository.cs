@@ -1,6 +1,7 @@
 ﻿using Courses_app.Exceptions;
 using Courses_app.Models;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace Courses_app.Repository
 {
@@ -12,6 +13,15 @@ namespace Courses_app.Repository
         {
             _context = context;
         }
+
+        public async Task<User> Get(long id)
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            return user;
+        }
+
         public async Task<User> AddBasicUser(BasicUser user)
         {
             try
@@ -70,6 +80,8 @@ namespace Courses_app.Repository
             return user;
         }
 
+
+
         public async Task<Author> GetAuthorById(long id)
         {
 
@@ -111,6 +123,84 @@ namespace Courses_app.Repository
                 throw new RepositoryException("An error occurred while retrieving the course.", ex);
             }
             
+        }
+
+        public async Task<User> ChangePassword(long id, string newPassword)
+        {
+            try
+            {
+                var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+                if(user == null)
+                {
+                    return null;
+                }
+
+                user.Password = newPassword;
+
+                await _context.SaveChangesAsync();
+                return user;
+
+            }
+            catch (DbUpdateException ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
+        public async Task<User> UpdateUser(long id, string name, string surname, string username, UserRole role)
+        {
+            try
+            {
+                if(role == UserRole.Author)
+                {
+                    var user = await _context.Author.FirstOrDefaultAsync(u => u.Id == id);
+                    if (user == null)
+                    {
+                        return null;
+                    }
+
+                    if (name != null) { user.Name = name; }
+                    if (surname != null) { user.Surname = surname; }
+                    if (username != null) { user.Username = username; }
+
+                    await _context.SaveChangesAsync();
+                    return user;
+
+                }else if(role == UserRole.User)
+                {
+                    var user = await _context.BasicUsers.FirstOrDefaultAsync(u => u.Id == id);
+                    if (user == null)
+                    {
+                        return null;
+                    }
+
+                    if (name != null) { user.Name = name; }
+                    if (surname != null) { user.Surname = surname; }
+                    if (username != null) { user.Username = username; }
+
+                    await _context.SaveChangesAsync();
+                    return user;
+                }
+                else
+                {
+                    return null;
+                }
+                
+
+            }
+            catch (DbUpdateException ex)
+            {
+                if (ex.InnerException is PostgresException postgresEx && postgresEx.SqlState == "23505")
+                {
+                    throw new UsernameAlreadyExistsException("The username is already in use. Please choose a different username.");
+                }
+
+                throw;
+            }
         }
 
     }

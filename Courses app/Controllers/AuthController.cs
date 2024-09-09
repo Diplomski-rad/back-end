@@ -151,6 +151,33 @@ namespace Courses_app.Controllers
             return BadRequest("Invalid username,email or password");
         }
 
+        [Authorize]
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword(ChangePassordRequest request)
+        {
+            try
+            {
+                var userIdClaim = HttpContext.User.FindFirst("id");
+                if (userIdClaim == null)
+                {
+                    return Unauthorized("User not found");
+                }
+                var userId = long.Parse(userIdClaim.Value);
+
+                var user = await _userService.ChangePassword(userId, request);
+                if(user == null)
+                {
+                    return BadRequest("The given old password does not match the current password.");
+                }
+
+                return Ok("Password changed successfully");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An unexpected error occured.");
+            }
+        }
+
         [Authorize(Policy ="UserOnly")]
         [HttpGet("protected")]
         public IActionResult ProtectedEndpoint()
