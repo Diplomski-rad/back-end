@@ -303,5 +303,84 @@ namespace Courses_app.Controllers
                 throw;
             }
         }
+
+        [Authorize(Policy = "AuthorOnly")]
+        [HttpPut("{courseId}/thumbnail")]
+        public async Task<IActionResult> AddThumbnailToCourse([FromForm] IFormFile file, long courseId)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
+
+            if (!file.ContentType.StartsWith("image/"))
+                return BadRequest("Uploaded file is not an image.");
+
+            try
+            {
+                var userIdClaim = HttpContext.User.FindFirst("id");
+                if (userIdClaim == null)
+                {
+                    return Unauthorized("User not found");
+                }
+                var userId = long.Parse(userIdClaim.Value);
+
+                var course = await _courseService.AddCourseThumbnail(userId, courseId, file);
+
+                if(course == null)
+                {
+                    return Unauthorized("You are not owner of this course.");
+                }
+
+                return Ok("Thumbnail successfully changed.");
+
+
+            }catch (BadDataException ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An unexpected error occured.");
+            }
+        }
+
+        [Authorize(Policy = "AuthorOnly")]
+        [HttpPut("{courseId}/video/{videoId}/thumbnail")]
+        public async Task<IActionResult> AddThumbnailToVideo([FromForm] IFormFile file, long courseId, string videoId)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
+
+            if (!file.ContentType.StartsWith("image/"))
+                return BadRequest("Uploaded file is not an image.");
+
+            try
+            {
+                var userIdClaim = HttpContext.User.FindFirst("id");
+                if (userIdClaim == null)
+                {
+                    return Unauthorized("User not found");
+                }
+                var userId = long.Parse(userIdClaim.Value);
+
+                var video = await _courseService.AddVideoThumbnail(userId, courseId, videoId, file);
+
+                if (video == null)
+                {
+                    return Unauthorized("You are not owner of this course.");
+                }
+
+                return Ok(video);
+
+
+            }
+            catch (BadDataException ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An unexpected error occured.");
+            }
+        }
     }
 }

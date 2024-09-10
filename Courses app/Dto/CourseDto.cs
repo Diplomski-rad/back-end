@@ -14,6 +14,7 @@ namespace Courses_app.Dto
         public List<CategoryDto> Categories { get; set; }
         public CourseRatingsDto Rating { get; set; }
         public string DifficultyLevel { get; set; }
+        public string Thumbnail { get; set; }
 
         public CourseDto(Course course)
         {
@@ -27,6 +28,7 @@ namespace Courses_app.Dto
             Categories = course.Categories.Select(category => new CategoryDto(category)).ToList();
             Rating = new CourseRatingsDto(course.Ratings.ToList());
             DifficultyLevel = course.DifficultyLevel.ToString();
+            Thumbnail = course.Thumbnail;
         }
     }
 

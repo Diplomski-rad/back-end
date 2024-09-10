@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Courses_app.Models;
 using Courses_app.Services.PayPalService;
 using Courses_app.Models.PayPal;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,6 +72,7 @@ builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IPurchaseService, PurchaseService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IRatingService, RatingService>();
+builder.Services.AddScoped<IImageService, ImageService>();
 
 builder.Services.AddScoped<IPayPalService,PayPalService>();
 
@@ -96,6 +98,12 @@ app.UseCors("AllowReactClient");
 
 //app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Images")),
+    RequestPath = "/images"
+});
 
 app.UseRouting();
 

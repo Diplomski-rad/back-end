@@ -14,9 +14,11 @@
         public DifficultyLevel DifficultyLevel { get; set; }
         public ICollection<Rating> Ratings { get; set; } = new List<Rating>();
 
+        public string? Thumbnail { get; set; }
+
         public Course(){}
 
-        public Course(string name, string description, Author author, double price, string playlistId, CourseStatus status, DifficultyLevel difficultyLevel)
+        public Course(string name, string description, Author author, double price, string playlistId, CourseStatus status, DifficultyLevel difficultyLevel, string thumbnail)
         {
             Name = name;
             Description = description;
@@ -25,6 +27,8 @@
             PlaylistId = playlistId;
             Status = status;
             DifficultyLevel = difficultyLevel;
+            Thumbnail = thumbnail;
+
         }
 
     }

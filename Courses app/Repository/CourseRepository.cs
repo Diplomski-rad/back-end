@@ -26,7 +26,7 @@ namespace Courses_app.Repository
                 _context.Course.Add(course);
                 await _context.SaveChangesAsync();
                 return course.Id;
-                
+
             }
             catch (DbUpdateException ex)
             {
@@ -39,10 +39,10 @@ namespace Courses_app.Repository
             try
             {
                 var course = await _context.Course
-                    .Include(c => c.Author)   
+                    .Include(c => c.Author)
                     .Include(c => c.Videos)
                     .Include(c => c.Categories)
-                    .Include(c=>c.Ratings)
+                    .Include(c => c.Ratings)
                     .FirstOrDefaultAsync(c => c.Id == id);
 
                 if (course == null)
@@ -87,9 +87,9 @@ namespace Courses_app.Repository
                 }
 
                 var courses = await _context.Course
-                    .Where(c => ids.Contains(c.Id)) 
-                    .Include(c => c.Author)               
-                    .ToListAsync();                 
+                    .Where(c => ids.Contains(c.Id))
+                    .Include(c => c.Author)
+                    .ToListAsync();
 
                 if (courses.Count == 0)
                 {
@@ -129,7 +129,7 @@ namespace Courses_app.Repository
             try
             {
                 var course = await _context.Course
-                    .Include(c => c.Videos) 
+                    .Include(c => c.Videos)
                     .FirstOrDefaultAsync(c => c.Id == courseId);
 
                 if (course == null)
@@ -159,16 +159,16 @@ namespace Courses_app.Repository
             {
                 List<Course> courses = await _context.Course
                 .Include(c => c.Author)
-                .Include(c=>c.Categories)
-                .Include(c => c.Ratings )
+                .Include(c => c.Categories)
+                .Include(c => c.Ratings)
                 .Where(c => c.Status == CourseStatus.PUBLISHED).ToListAsync();
                 return courses;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new RepositoryException("An error occurred while retrieving courses.", ex);
             }
-            
+
         }
 
         public async Task<List<Course>> SearchCourse(string query)
@@ -185,7 +185,7 @@ namespace Courses_app.Repository
                     .Include(c => c.Ratings)
                     .Where(c => c.Status == CourseStatus.PUBLISHED && c.Name.Trim().ToLower().Contains(query.Trim().ToLower())).ToListAsync();
                 return courses;
-            }catch (Exception ex)
+            } catch (Exception ex)
             {
                 throw new RepositoryException("Ann error occured while retrieving searched courses.", ex);
             }
@@ -217,7 +217,7 @@ namespace Courses_app.Repository
                     throw new RepositoryException("Ann error occured while retrieving searched courses.", ex);
                 }
             }
-            else if(!string.IsNullOrWhiteSpace(filter.DifficultyLevel) && filter.Categories.Count == 0)
+            else if (!string.IsNullOrWhiteSpace(filter.DifficultyLevel) && filter.Categories.Count == 0)
             {
                 if (Enum.TryParse(filter.DifficultyLevel, out DifficultyLevel difficultyLevel))
                 {
@@ -260,7 +260,7 @@ namespace Courses_app.Repository
                     throw new ArgumentException("Invalid difficulty level provided.");
                 }
             }
-            
+
         }
 
         public async Task<Course> UpdateCourseStatusToPublic(long courseId, double price, DifficultyLevel difficultyLevel, List<CategoryDto> categoriesDtos)
@@ -273,7 +273,7 @@ namespace Courses_app.Repository
 
                 var categories = await _categoryRepository.GetCategories(categoryIds);
 
-                if(categories.Count < categoriesDtos.Count)
+                if (categories.Count < categoriesDtos.Count)
                 {
                     throw new NotFoundException($"Some of the passed categories do not exist");
                 }
@@ -289,7 +289,7 @@ namespace Courses_app.Repository
                     throw new NotFoundException($"Course with id {courseId} not found.");
                 }
 
-                if(course.Videos.Count < 1)
+                if (course.Videos.Count < 1)
                 {
                     throw new BadDataException("A course that does not have a single video cannot be published");
                 }
@@ -336,6 +336,63 @@ namespace Courses_app.Repository
                 throw new RepositoryException("An error occurred while updating the course status.", ex);
             }
         }
+
+        public async Task<Course> AddCourseThumbnail(long authorId, long courseId, string thumbnail)
+        {
+            try
+            {
+                var course = await _context.Course
+                    .Include(c => c.Author)
+                    .FirstOrDefaultAsync(c => c.Id == courseId && c.Author.Id == authorId);
+
+                if(course == null)
+                {
+                    return null;
+                }
+
+                course.Thumbnail = thumbnail;
+                await _context.SaveChangesAsync();
+
+                return course;
+
+            }catch (DbUpdateException ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<Video> AddVideoThumbnail(long authorId, long courseId,string videoId, string thumbnail)
+        {
+            try
+            {
+                var course = await _context.Course
+                    .Include(c => c.Author)
+                    .Include(c => c.Videos)
+                    .FirstOrDefaultAsync(c => c.Id == courseId && c.Author.Id == authorId);
+
+                if (course == null)
+                {
+                    return null;
+                }
+
+                var video = course.Videos.FirstOrDefault(v => v.Id == videoId);
+
+                if (video == null)
+                {
+                    return null; // Video not found in the course
+                }
+
+                video.Thumbnail = thumbnail;
+                await _context.SaveChangesAsync();
+                return video;
+            }
+            catch (DbUpdateException ex)
+            {
+                throw;
+            }
+        }
+
+
 
 
     }

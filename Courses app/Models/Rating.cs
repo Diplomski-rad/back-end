@@ -13,6 +13,8 @@ namespace Courses_app.Models
         public User User { get; set; }
         public Course Course { get; set; }
 
+        public string? Review { get; set; }
+
         public Rating()
         {
             
@@ -24,6 +26,7 @@ namespace Courses_app.Models
             CourseId = ratingDto.CourseId;
             RatingValue = ratingDto.RatingValue;
             RatingDate = DateTime.UtcNow;
+            Review = ratingDto.Review;
         }
     }
 }

@@ -10,12 +10,15 @@ namespace Courses_app.Services
         private readonly ICourseRepository _courseRepository;
         private readonly IUserRepository _userRepository;
         private readonly IVideoService _videoService;
+        private readonly IImageService _imageService;
 
-        public CourseService(ICourseRepository courseRepository, IUserRepository userRepository, IVideoService videoService)
+        public CourseService(ICourseRepository courseRepository, IUserRepository userRepository, IVideoService videoService, IImageService imageService)
         {
             _courseRepository = courseRepository;
             _userRepository = userRepository;
             _videoService = videoService;
+            _imageService = imageService;
+
         }
 
         public async Task<long> Add(CreateCourseModel createCourse)
@@ -164,6 +167,46 @@ namespace Courses_app.Services
             return course;
         }
 
+
+        public async Task<Course> AddCourseThumbnail(long authorId, long courseId, IFormFile image)
+        {
+            try
+            {
+                string fileName = await _imageService.Upload(image);
+                if(fileName == null)
+                {
+                    throw new BadDataException("An error occured while saving image.");
+                }
+                return await _courseRepository.AddCourseThumbnail(authorId, courseId, fileName);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            
+        }
+
+        public async Task<VideoDto> AddVideoThumbnail(long authorId, long courseId, string videoId, IFormFile image)
+        {
+            try
+            {
+                string fileName = await _imageService.Upload(image);
+                if (fileName == null)
+                {
+                    throw new BadDataException("An error occured while saving image.");
+                }
+                var video = await _courseRepository.AddVideoThumbnail(authorId,courseId, videoId, fileName);
+                if(video == null)
+                {
+                    return null;
+                }
+                return new VideoDto(video);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
 
 
     }

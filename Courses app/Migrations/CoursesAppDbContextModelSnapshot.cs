@@ -108,6 +108,9 @@ namespace Courses_app.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Thumbnail")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
@@ -166,6 +169,9 @@ namespace Courses_app.Migrations
 
                     b.Property<int>("RatingValue")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Review")
+                        .HasColumnType("text");
 
                     b.Property<long>("UserId")
                         .HasColumnType("bigint");
@@ -235,6 +241,9 @@ namespace Courses_app.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Thumbnail")
                         .HasColumnType("text");
 
                     b.Property<string>("Title")

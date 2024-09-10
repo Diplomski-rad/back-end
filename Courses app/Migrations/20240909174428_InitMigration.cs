@@ -77,7 +77,8 @@ namespace Courses_app.Migrations
                     Price = table.Column<double>(type: "double precision", nullable: false),
                     PlaylistId = table.Column<string>(type: "text", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
-                    DifficultyLevel = table.Column<int>(type: "integer", nullable: false)
+                    DifficultyLevel = table.Column<int>(type: "integer", nullable: false),
+                    Thumbnail = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -152,7 +153,8 @@ namespace Courses_app.Migrations
                     UserId = table.Column<long>(type: "bigint", nullable: false),
                     CourseId = table.Column<long>(type: "bigint", nullable: false),
                     RatingValue = table.Column<int>(type: "integer", nullable: false),
-                    RatingDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    RatingDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Review = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -179,6 +181,7 @@ namespace Courses_app.Migrations
                     AuthorId = table.Column<long>(type: "bigint", nullable: false),
                     Title = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
+                    Thumbnail = table.Column<string>(type: "text", nullable: true),
                     CourseId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Courses_app.Migrations
 {
     [DbContext(typeof(CoursesAppDbContext))]
-    [Migration("20240905175921_InitMigration")]
+    [Migration("20240909174428_InitMigration")]
     partial class InitMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -110,6 +110,9 @@ namespace Courses_app.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Thumbnail")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
@@ -168,6 +171,9 @@ namespace Courses_app.Migrations
 
                     b.Property<int>("RatingValue")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Review")
+                        .HasColumnType("text");
 
                     b.Property<long>("UserId")
                         .HasColumnType("bigint");
@@ -237,6 +243,9 @@ namespace Courses_app.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Thumbnail")
                         .HasColumnType("text");
 
                     b.Property<string>("Title")

@@ -9,6 +9,7 @@ namespace Courses_app.Dto
         public long CourseId { get; set; }
         [Range(1, 5, ErrorMessage = "Rating value must be between 1 and 5.")]
         public int RatingValue { get; set; }
+        public string Review { get; set; }
 
 
         public RatingDto()
@@ -21,6 +22,7 @@ namespace Courses_app.Dto
             UserId = rating.UserId;
             CourseId = rating.CourseId;
             RatingValue = rating.RatingValue;
+            Review = rating.Review;
         }
     }
 }
