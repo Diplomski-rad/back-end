@@ -72,34 +72,67 @@ namespace Courses_app.Repository
         {
             try
             {
+                // Fetch the user
                 var user = await _context.BasicUsers.FindAsync(purchaseModel.UserId);
-
                 if (user == null)
                 {
-                    throw new RepositoryException("Cannot find user ith given id");
+                    throw new RepositoryException("Cannot find user with the given id");
                 }
 
+                // Retrieve all required courses
+                var courses = await _context.Course
+                    .Include(c => c.Author)
+                    .Where(c => purchaseModel.CoursesIds.Contains(c.Id))
+                    .ToListAsync();
 
-                var purchaseTasks = purchaseModel.CoursesIds.Select(async courseId => new Purchase
+                // Create and save purchases
+                var purchases = new List<Purchase>();
+                foreach (var course in courses)
                 {
-                    User = user,
-                    Course = await _context.Course.FindAsync(courseId),
-                    PaymentId = purchaseModel.PaymentId,
-                    PayerId = purchaseModel.PayerId,
-                    PaymentMethod = purchaseModel.PaymentMethod
-                }).ToList();
+                    var purchase = new Purchase
+                    {
+                        User = user,
+                        Course = course,
+                        PaymentId = purchaseModel.PaymentId,
+                        PayerId = purchaseModel.PayerId,
+                        PaymentMethod = purchaseModel.PaymentMethod
+                    };
 
-                var purchases = await Task.WhenAll(purchaseTasks);
+                    purchases.Add(purchase);
+                }
 
-                _context.Purchases.AddRange(purchases);
-                await _context.SaveChangesAsync();
-                return purchases.ToList();
+                // Add Purchases to context
+                await _context.Purchases.AddRangeAsync(purchases);
+                await _context.SaveChangesAsync(); // Save changes to generate Purchase IDs
+
+                // Create AuthorEarnings
+                var authorEarnings = new List<AuthorEarning>();
+                foreach (var purchase in purchases)
+                {
+                    var course = courses.First(c => c.Id == purchase.Course.Id);
+                    var authorEarning = new AuthorEarning
+                    {
+                        PurchaseId = purchase.Id, // Set PurchaseId from saved Purchase
+                        AuthorId = course.Author.Id,
+                        Amount = (decimal)course.Price * 0.70m, // Assuming 70% of the course price
+                        IsIncludedInPayout = false
+                    };
+
+                    authorEarnings.Add(authorEarning);
+                }
+
+                // Add AuthorEarnings to context
+                await _context.AuthorEarning.AddRangeAsync(authorEarnings);
+                await _context.SaveChangesAsync(); // Save changes to persist AuthorEarnings
+
+                return purchases;
             }
             catch (DbUpdateException ex)
             {
                 throw new Exception(ex.Message, ex);
             }
-            
         }
+
+
     }
 }

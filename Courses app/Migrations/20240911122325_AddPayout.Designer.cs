@@ -3,6 +3,7 @@ using System;
 using Courses_app;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Courses_app.Migrations
 {
     [DbContext(typeof(CoursesAppDbContext))]
-    partial class CoursesAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240911122325_AddPayout")]
+    partial class AddPayout
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -167,17 +169,8 @@ namespace Courses_app.Migrations
                     b.Property<long>("AuthorId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("ControlGuid")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("PayoutDate")
+                    b.Property<DateTime>("PayoutDate")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Payout_batch_id")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Payout_item_id")
-                        .HasColumnType("text");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");

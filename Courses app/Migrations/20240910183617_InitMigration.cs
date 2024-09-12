@@ -200,6 +200,45 @@ namespace Courses_app.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "AuthorEarning",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    PurchaseId = table.Column<long>(type: "bigint", nullable: false),
+                    AuthorId = table.Column<long>(type: "bigint", nullable: false),
+                    Amount = table.Column<decimal>(type: "numeric", nullable: false),
+                    IsIncludedInPayout = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AuthorEarning", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AuthorEarning_Purchases_PurchaseId",
+                        column: x => x.PurchaseId,
+                        principalTable: "Purchases",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_AuthorEarning_Users_AuthorId",
+                        column: x => x.AuthorId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuthorEarning_AuthorId",
+                table: "AuthorEarning",
+                column: "AuthorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuthorEarning_PurchaseId",
+                table: "AuthorEarning",
+                column: "PurchaseId",
+                unique: true);
+
             migrationBuilder.CreateIndex(
                 name: "IX_Category_CategoryGroupId",
                 table: "Category",
@@ -261,16 +300,19 @@ namespace Courses_app.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "CategoryCourse");
+                name: "AuthorEarning");
 
             migrationBuilder.DropTable(
-                name: "Purchases");
+                name: "CategoryCourse");
 
             migrationBuilder.DropTable(
                 name: "Rating");
 
             migrationBuilder.DropTable(
                 name: "Video");
+
+            migrationBuilder.DropTable(
+                name: "Purchases");
 
             migrationBuilder.DropTable(
                 name: "Category");

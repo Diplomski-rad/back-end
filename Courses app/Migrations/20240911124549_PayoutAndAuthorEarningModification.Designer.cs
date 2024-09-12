@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Courses_app.Migrations
 {
     [DbContext(typeof(CoursesAppDbContext))]
-    [Migration("20240909174428_InitMigration")]
-    partial class InitMigration
+    [Migration("20240911124549_PayoutAndAuthorEarningModification")]
+    partial class PayoutAndAuthorEarningModification
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -37,6 +37,41 @@ namespace Courses_app.Migrations
                     b.HasIndex("CoursesId");
 
                     b.ToTable("CategoryCourse");
+                });
+
+            modelBuilder.Entity("Courses_app.Models.AuthorEarning", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<long>("AuthorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsIncludedInPayout")
+                        .HasColumnType("boolean");
+
+                    b.Property<long?>("PayoutId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("PurchaseId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("PayoutId");
+
+                    b.HasIndex("PurchaseId")
+                        .IsUnique();
+
+                    b.ToTable("AuthorEarning");
                 });
 
             modelBuilder.Entity("Courses_app.Models.Category", b =>
@@ -118,6 +153,33 @@ namespace Courses_app.Migrations
                     b.HasIndex("AuthorId");
 
                     b.ToTable("Course");
+                });
+
+            modelBuilder.Entity("Courses_app.Models.Payout", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<long>("AuthorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("PayoutDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.ToTable("Payout");
                 });
 
             modelBuilder.Entity("Courses_app.Models.Purchase", b =>
@@ -312,6 +374,27 @@ namespace Courses_app.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Courses_app.Models.AuthorEarning", b =>
+                {
+                    b.HasOne("Courses_app.Models.Author", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Courses_app.Models.Payout", null)
+                        .WithMany("AuthorEarnings")
+                        .HasForeignKey("PayoutId");
+
+                    b.HasOne("Courses_app.Models.Purchase", null)
+                        .WithOne("AuthorEarning")
+                        .HasForeignKey("Courses_app.Models.AuthorEarning", "PurchaseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+                });
+
             modelBuilder.Entity("Courses_app.Models.Category", b =>
                 {
                     b.HasOne("Courses_app.Models.CategoryGroup", null)
@@ -320,6 +403,17 @@ namespace Courses_app.Migrations
                 });
 
             modelBuilder.Entity("Courses_app.Models.Course", b =>
+                {
+                    b.HasOne("Courses_app.Models.Author", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+                });
+
+            modelBuilder.Entity("Courses_app.Models.Payout", b =>
                 {
                     b.HasOne("Courses_app.Models.Author", "Author")
                         .WithMany()
@@ -393,6 +487,17 @@ namespace Courses_app.Migrations
                     b.Navigation("Ratings");
 
                     b.Navigation("Videos");
+                });
+
+            modelBuilder.Entity("Courses_app.Models.Payout", b =>
+                {
+                    b.Navigation("AuthorEarnings");
+                });
+
+            modelBuilder.Entity("Courses_app.Models.Purchase", b =>
+                {
+                    b.Navigation("AuthorEarning")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

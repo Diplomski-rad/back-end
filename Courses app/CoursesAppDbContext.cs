@@ -19,6 +19,9 @@ namespace Courses_app
         public DbSet<CategoryGroup> CategoryGroup { get; set; }
         public DbSet<Rating > Rating { get; set; }
 
+        public DbSet<AuthorEarning> AuthorEarning { get; set; }
+        public DbSet<Payout> Payout { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -41,6 +44,17 @@ namespace Courses_app
                 .HasOne(r => r.User)
                 .WithMany()
                 .HasForeignKey(r => r.UserId);
+
+            modelBuilder.Entity<Purchase>()
+                .HasOne(p => p.AuthorEarning)
+                .WithOne()
+                .HasForeignKey<AuthorEarning>(ae => ae.PurchaseId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<AuthorEarning>()
+                .HasOne(ae => ae.Author)
+                .WithMany()
+                .HasForeignKey(ae => ae.AuthorId);
         }
     }
 }

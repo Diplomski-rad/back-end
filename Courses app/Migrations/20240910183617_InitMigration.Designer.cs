@@ -3,6 +3,7 @@ using System;
 using Courses_app;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Courses_app.Migrations
 {
     [DbContext(typeof(CoursesAppDbContext))]
-    partial class CoursesAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240910183617_InitMigration")]
+    partial class InitMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -54,17 +56,12 @@ namespace Courses_app.Migrations
                     b.Property<bool>("IsIncludedInPayout")
                         .HasColumnType("boolean");
 
-                    b.Property<long?>("PayoutId")
-                        .HasColumnType("bigint");
-
                     b.Property<long>("PurchaseId")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
-
-                    b.HasIndex("PayoutId");
 
                     b.HasIndex("PurchaseId")
                         .IsUnique();
@@ -151,42 +148,6 @@ namespace Courses_app.Migrations
                     b.HasIndex("AuthorId");
 
                     b.ToTable("Course");
-                });
-
-            modelBuilder.Entity("Courses_app.Models.Payout", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("numeric");
-
-                    b.Property<long>("AuthorId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("ControlGuid")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("PayoutDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Payout_batch_id")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Payout_item_id")
-                        .HasColumnType("text");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AuthorId");
-
-                    b.ToTable("Payout");
                 });
 
             modelBuilder.Entity("Courses_app.Models.Purchase", b =>
@@ -389,10 +350,6 @@ namespace Courses_app.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Courses_app.Models.Payout", null)
-                        .WithMany("AuthorEarnings")
-                        .HasForeignKey("PayoutId");
-
                     b.HasOne("Courses_app.Models.Purchase", null)
                         .WithOne("AuthorEarning")
                         .HasForeignKey("Courses_app.Models.AuthorEarning", "PurchaseId")
@@ -410,17 +367,6 @@ namespace Courses_app.Migrations
                 });
 
             modelBuilder.Entity("Courses_app.Models.Course", b =>
-                {
-                    b.HasOne("Courses_app.Models.Author", "Author")
-                        .WithMany()
-                        .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Author");
-                });
-
-            modelBuilder.Entity("Courses_app.Models.Payout", b =>
                 {
                     b.HasOne("Courses_app.Models.Author", "Author")
                         .WithMany()
@@ -494,11 +440,6 @@ namespace Courses_app.Migrations
                     b.Navigation("Ratings");
 
                     b.Navigation("Videos");
-                });
-
-            modelBuilder.Entity("Courses_app.Models.Payout", b =>
-                {
-                    b.Navigation("AuthorEarnings");
                 });
 
             modelBuilder.Entity("Courses_app.Models.Purchase", b =>

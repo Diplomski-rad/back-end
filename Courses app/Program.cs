@@ -9,8 +9,31 @@ using Courses_app.Models;
 using Courses_app.Services.PayPalService;
 using Courses_app.Models.PayPal;
 using Microsoft.Extensions.FileProviders;
+using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+builder.Services.AddQuartz(q =>
+{
+    q.UseMicrosoftDependencyInjectionJobFactory();  
+
+    // Definišite Quartz posao
+    var jobKey = new JobKey("PayoutJob");
+    q.AddJob<PayoutJob>(opts => opts.WithIdentity(jobKey));
+
+    
+    q.AddTrigger(opts => opts
+        .ForJob(jobKey)
+        .WithIdentity("PayoutJob-trigger")
+        //.WithCronSchedule("0/5 * * * * ?")); // Every 5 seconds
+        //.WithCronSchedule("0 35 19 ? * * *")); // Every day at 07:35PM
+        //.WithCronSchedule("0 43 19 ? * * *")); 
+        .WithCronSchedule("0 0 9 ? * MON *")); // Monday at 9AM
+                                               
+});
+
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
 builder.Services.AddCors(options =>
 {
@@ -73,6 +96,7 @@ builder.Services.AddScoped<IPurchaseService, PurchaseService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IRatingService, RatingService>();
 builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<IPayoutService, PayoutService>();
 
 builder.Services.AddScoped<IPayPalService,PayPalService>();
 
@@ -83,6 +107,7 @@ builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<IPurchaseRepository, PurchaseRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IRatingRepository, RatingRepository>();
+builder.Services.AddScoped<IPayoutRepository, PayoutRepository>();
 
 var app = builder.Build();
 

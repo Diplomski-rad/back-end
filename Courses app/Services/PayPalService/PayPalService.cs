@@ -1,7 +1,10 @@
 ﻿using Courses_app.Models;
+using Newtonsoft.Json;
 using PayPal;
 using PayPal.Api;
 using System.Diagnostics;
+using System.Net.Http.Headers;
+using System.Text;
 
 namespace Courses_app.Services.PayPalService
 {
@@ -103,5 +106,86 @@ namespace Courses_app.Services.PayPalService
             Payment payment1 = payment.Execute(apiContext, paymentExecution);
             return payment1;
         }
+
+        public async Task<PayoutBatch> MakePayoutAsync(List<(string Email, decimal Amount)> recipients)
+        {
+            var accessToken = GetAccessToken();
+            var apiContext = GetApiContext(accessToken);
+
+            var payoutItems = recipients.Select(recipient => new PayoutItem
+            {
+                recipient_type = PayoutRecipientType.EMAIL,
+                amount = new Currency
+                {
+                    value = recipient.Amount.ToString("F2"),  // Format to 2 decimal places
+                    currency = "USD"
+                },
+                receiver = recipient.Email,
+                note = "Thank you for your contribution!",
+                sender_item_id = Guid.NewGuid().ToString()  // Unique identifier for this item
+            }).ToList();
+
+            var payout = new PayPal.Api.Payout
+            {
+                sender_batch_header = new PayoutSenderBatchHeader
+                {
+                    sender_batch_id = Guid.NewGuid().ToString(),
+                    email_subject = "You have a payment from CoursesApp",
+                },
+                items = payoutItems
+            };
+
+            try
+            {
+                var createdPayout = payout.Create(apiContext, false);  // Set `false` for synchronous
+                return createdPayout;
+            }
+            catch (PaymentsException ex)
+            {
+                Debug.WriteLine($"Error: {ex.Response}");
+                return null;
+            }
+        }
+
+        public async Task<PayoutBatch> MakePayoutAsync(List<Models.Payout> recipients)
+        {
+            var accessToken = GetAccessToken();
+            var apiContext = GetApiContext(accessToken);
+
+            var payoutItems = recipients.Select(recipient => new PayoutItem
+            {
+                recipient_type = PayoutRecipientType.EMAIL,
+                amount = new Currency
+                {
+                    value = recipient.Amount.ToString("F2"),
+                    currency = "USD"
+                },
+                receiver = recipient.Author.PayPalEmail,
+                note = $"Dear {recipient.Author.Name},\r\n\r\nWe hope this message finds you well!\r\n\r\nWe are pleased to inform you that a payment of ${recipient.Amount.ToString()} has been successfully processed to your account. This payment is in recognition of your contributions to CoursesApp.",
+                sender_item_id = recipient.ControlGuid
+            }).ToList();
+
+            var payout = new PayPal.Api.Payout
+            {
+                sender_batch_header = new PayoutSenderBatchHeader
+                {
+                    sender_batch_id = Guid.NewGuid().ToString(),
+                    email_subject = "Payment Confirmation from CoursesApp",
+                },
+                items = payoutItems
+            };
+
+            try
+            {
+                var createdPayout = payout.Create(apiContext, false);
+                return createdPayout;
+            }
+            catch (PaymentsException ex)
+            {
+                Debug.WriteLine($"Error: {ex.Response}");
+                return null;
+            }
+        }
+
     }
 }
