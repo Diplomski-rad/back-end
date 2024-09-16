@@ -16,7 +16,8 @@ namespace Courses_app.Services
         public Task<Course> Get(long id);
         public Task<List<Course>> GetCoursesByIds(List<long> ids);
         public Task<CourseDto> GetPurchased(long courseId);
-        public Task<CourseDto> PublishCourse(long courseId, PublishCourseRequest request);
+        public Task<CourseDto> PublishCourse(long courseId,long userId, PublishCourseRequest request);
+        public Task<CourseDto> ArchiveCourse(long courseId, long userId);
         public Task<Course> UpdateNameAndDescription(long userId, long courseId, string name, string description);
         public Task<Course> AddCourseThumbnail(long authorId, long courseId, IFormFile thumbnail);
         public Task<VideoDto> AddVideoThumbnail(long authorId, long courseId, string videoId, IFormFile image);

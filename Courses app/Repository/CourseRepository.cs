@@ -263,7 +263,7 @@ namespace Courses_app.Repository
 
         }
 
-        public async Task<Course> UpdateCourseStatusToPublic(long courseId, double price, DifficultyLevel difficultyLevel, List<CategoryDto> categoriesDtos)
+        public async Task<Course> UpdateCourseStatusToPublic(long courseId, long userId, double price, DifficultyLevel difficultyLevel, List<CategoryDto> categoriesDtos)
         {
 
             try
@@ -282,7 +282,7 @@ namespace Courses_app.Repository
                     .Include(c => c.Categories)
                     .Include(c => c.Videos)
                     .Include(c => c.Author)
-                    .FirstOrDefaultAsync(c => c.Id == courseId);
+                    .FirstOrDefaultAsync(c => c.Id == courseId && c.Author.Id == userId);
 
                 if (course == null)
                 {
@@ -306,6 +306,28 @@ namespace Courses_app.Repository
             catch (DbUpdateException ex)
             {
                 throw new RepositoryException("An error occurred while updating the course status.", ex);
+            }
+        }
+
+        public async Task<Course> ArchiveCourse(long courseId, long userId)
+        {
+            try
+            {
+                var course = await _context.Course.Include(c => c.Author).FirstOrDefaultAsync(c => c.Id == courseId && c.Author.Id == userId);
+
+                if (course == null)
+                {
+                    throw new NotFoundException($"Course with id {courseId} not found.");
+                }
+
+                course.Status = CourseStatus.ARCHIVED;
+                await _context.SaveChangesAsync();
+                return course;
+
+            }
+            catch (DbUpdateException ex)
+            {
+                throw;
             }
         }
 

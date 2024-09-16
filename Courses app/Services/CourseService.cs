@@ -167,11 +167,11 @@ namespace Courses_app.Services
             return purchasedCourse;
         }
 
-        public async Task<CourseDto> PublishCourse(long courseId, PublishCourseRequest request)
+        public async Task<CourseDto> PublishCourse(long courseId, long userId, PublishCourseRequest request)
         {
             if (Enum.TryParse(request.DifficultyLevel, out DifficultyLevel difficultyLevel))
             {
-                Course publishedCourse = await _courseRepository.UpdateCourseStatusToPublic(courseId, request.Price, difficultyLevel, request.Categories);
+                Course publishedCourse = await _courseRepository.UpdateCourseStatusToPublic(courseId,userId, request.Price, difficultyLevel, request.Categories);
                 return new CourseDto(publishedCourse);
             }
             else
@@ -179,6 +179,12 @@ namespace Courses_app.Services
                 throw new Exception("Invalid difficulty level");
             }
                 
+        }
+
+        public async Task<CourseDto> ArchiveCourse(long courseId, long userId)
+        {
+            var course = await _courseRepository.ArchiveCourse(courseId, userId);
+            return new CourseDto(course);
         }
 
         public async Task<Course> UpdateNameAndDescription(long userId, long courseId, string name, string description)

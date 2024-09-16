@@ -15,7 +15,8 @@ namespace Courses_app.Repository
         public Task<List<Course>> GetAllPublicCourses();
         public Task<List<Course>> SearchCourse(string query);
         public Task<List<Course>> FilterCourses(FilterDto filter);
-        public Task<Course> UpdateCourseStatusToPublic(long courseId, double price, DifficultyLevel difficultyLevel, List<CategoryDto> categories);
+        public Task<Course> UpdateCourseStatusToPublic(long courseId, long userId, double price, DifficultyLevel difficultyLevel, List<CategoryDto> categories);
+        public Task<Course> ArchiveCourse(long courseId, long userId);
         public Task<Course> UpdateNameAndDescription(long userId, long courseId, string name, string description);
         public Task<Course> AddCourseThumbnail(long authorId, long courseId, string thumbnail);
         public Task<Video> AddVideoThumbnail(long authorId, long courseId, string videoId, string thumbnail);

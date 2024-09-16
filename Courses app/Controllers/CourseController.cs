@@ -249,16 +249,53 @@ namespace Courses_app.Controllers
                 }
                 var userId = long.Parse(userIdClaim.Value);
 
-                var course = await _courseService.PublishCourse(courseId, request);
+                var course = await _courseService.PublishCourse(courseId,userId , request);
                 return Ok("Successfully publised");
             }
-            
-            catch(BadDataException ex)
+            catch (NotFoundException ex)
+            {
+                return Unauthorized("You don't own course with given id.");
+            }
+
+            catch (BadDataException ex)
             {
                 return BadRequest(ex.Message);
             }
             
             catch(Exception ex)
+            {
+                throw;
+            }
+        }
+
+        [Authorize(Policy = "AuthorOnly")]
+        [HttpPut("{courseId}/archive")]
+        public async Task<IActionResult> ArchiveCourse(long courseId)
+        {
+            try
+            {
+                var userIdClaim = HttpContext.User.FindFirst("id");
+                if (userIdClaim == null)
+                {
+                    return Unauthorized("User not found");
+                }
+                var userId = long.Parse(userIdClaim.Value);
+
+                var course = await _courseService.ArchiveCourse(courseId, userId);
+                return Ok("Successfully publised");
+            }
+            
+            catch(NotFoundException ex)
+            {
+                return Unauthorized("You don't own course with given id.");
+            }
+
+            catch (BadDataException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            catch (Exception ex)
             {
                 throw;
             }
