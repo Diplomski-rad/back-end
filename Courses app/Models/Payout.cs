@@ -1,7 +1,12 @@
-﻿namespace Courses_app.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
+namespace Courses_app.Models
 {
     public class Payout
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
         public decimal Amount { get; set; } 
         public DateTime? PayoutDate { get; set; }

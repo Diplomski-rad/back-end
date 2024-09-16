@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Courses_app.Migrations
 {
     [DbContext(typeof(CoursesAppDbContext))]
-    [Migration("20240911124549_PayoutAndAuthorEarningModification")]
-    partial class PayoutAndAuthorEarningModification
+    [Migration("20240916105311_InitMigration")]
+    partial class InitMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -169,8 +169,17 @@ namespace Courses_app.Migrations
                     b.Property<long>("AuthorId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("ControlGuid")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("PayoutDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Payout_batch_id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Payout_item_id")
+                        .HasColumnType("text");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
@@ -306,6 +315,9 @@ namespace Courses_app.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Thumbnail")
                         .HasColumnType("text");

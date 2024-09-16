@@ -1,9 +1,13 @@
 ﻿using Courses_app.Dto;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
 namespace Courses_app.Models
 {
     public class Rating
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
         public long UserId { get; set; }
         public long CourseId { get; set; }

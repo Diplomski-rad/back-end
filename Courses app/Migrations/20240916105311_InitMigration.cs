@@ -92,6 +92,31 @@ namespace Courses_app.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Payout",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Amount = table.Column<decimal>(type: "numeric", nullable: false),
+                    PayoutDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    AuthorId = table.Column<long>(type: "bigint", nullable: false),
+                    ControlGuid = table.Column<string>(type: "text", nullable: true),
+                    Payout_item_id = table.Column<string>(type: "text", nullable: true),
+                    Payout_batch_id = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Payout", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Payout_Users_AuthorId",
+                        column: x => x.AuthorId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CategoryCourse",
                 columns: table => new
                 {
@@ -182,6 +207,7 @@ namespace Courses_app.Migrations
                     Title = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     Thumbnail = table.Column<string>(type: "text", nullable: true),
+                    IsPublished = table.Column<bool>(type: "boolean", nullable: false),
                     CourseId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
@@ -209,11 +235,17 @@ namespace Courses_app.Migrations
                     PurchaseId = table.Column<long>(type: "bigint", nullable: false),
                     AuthorId = table.Column<long>(type: "bigint", nullable: false),
                     Amount = table.Column<decimal>(type: "numeric", nullable: false),
-                    IsIncludedInPayout = table.Column<bool>(type: "boolean", nullable: false)
+                    IsIncludedInPayout = table.Column<bool>(type: "boolean", nullable: false),
+                    PayoutId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AuthorEarning", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AuthorEarning_Payout_PayoutId",
+                        column: x => x.PayoutId,
+                        principalTable: "Payout",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_AuthorEarning_Purchases_PurchaseId",
                         column: x => x.PurchaseId,
@@ -234,6 +266,11 @@ namespace Courses_app.Migrations
                 column: "AuthorId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AuthorEarning_PayoutId",
+                table: "AuthorEarning",
+                column: "PayoutId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AuthorEarning_PurchaseId",
                 table: "AuthorEarning",
                 column: "PurchaseId",
@@ -252,6 +289,11 @@ namespace Courses_app.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Course_AuthorId",
                 table: "Course",
+                column: "AuthorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payout_AuthorId",
+                table: "Payout",
                 column: "AuthorId");
 
             migrationBuilder.CreateIndex(
@@ -310,6 +352,9 @@ namespace Courses_app.Migrations
 
             migrationBuilder.DropTable(
                 name: "Video");
+
+            migrationBuilder.DropTable(
+                name: "Payout");
 
             migrationBuilder.DropTable(
                 name: "Purchases");
