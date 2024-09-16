@@ -97,8 +97,8 @@ namespace Courses_app.Controllers
             }
 
             try {
-                CourseDto courseDto = await _courseService.AddVideoToCourse(model);
-                return Ok(courseDto);
+                string link = await _courseService.AddVideoToCourseAsync(model);
+                return Ok(link);
             }
             catch (Exception ex)
             {

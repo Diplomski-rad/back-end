@@ -10,15 +10,17 @@ namespace Courses_app.Models
         public string Title { get; set; }
         public string Description { get; set; }
         public string? Thumbnail { get; set; }
+        public bool IsPublished { get; set; }
 
         public Video(){}
 
-        public Video(string id,Author author, string title, string description)
+        public Video(string id,Author author, string title, string description, bool isPublished)
         {
             Id = id;
             Author = author;
             Title = title;
             Description = description;
+            IsPublished = isPublished;
 
         }
     }

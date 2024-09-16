@@ -8,6 +8,7 @@ namespace Courses_app.Dto
         public string Title { get; set; }
         public string Description { get; set; }
         public string Thumbnail { get; set; }
+        public bool IsPublished { get; set; }
 
         public VideoDto()
         {
@@ -20,6 +21,7 @@ namespace Courses_app.Dto
             Title = video.Title;
             Description = video.Description;
             Thumbnail = video.Thumbnail;
+            IsPublished = video.IsPublished;
         }
     }
 }

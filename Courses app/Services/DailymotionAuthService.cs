@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.DataProtection;
 using static System.Formats.Asn1.AsnWriter;
 using Courses_app.Models;
 using Newtonsoft.Json;
+using System.Net.Http.Headers;
 
 namespace Courses_app.Services
 {
@@ -47,6 +48,16 @@ namespace Courses_app.Services
             var response = await client.PostAsync("https://api.dailymotion.com/oauth/token", content);
             var json = await response.Content.ReadAsStringAsync();
             var tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(json);
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.Access_token);
+
+            var webhook_content = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("webhook_url","https://pleased-romantic-sawfly.ngrok-free.app/api/videos/webhook"),
+                new KeyValuePair<string, string>("webhook_events", "video.published"),
+            });
+
+            await client.PostAsync("https://api.dailymotion.com/user/me", webhook_content);
 
             return tokenResponse;
         }

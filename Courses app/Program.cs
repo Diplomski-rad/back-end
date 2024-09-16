@@ -10,6 +10,7 @@ using Courses_app.Services.PayPalService;
 using Courses_app.Models.PayPal;
 using Microsoft.Extensions.FileProviders;
 using Quartz;
+using Courses_app.WebSocket;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +36,10 @@ builder.Services.AddQuartz(q =>
 
 builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
+
+builder.Services.AddSignalR();
+
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactClient",
@@ -43,7 +48,10 @@ builder.Services.AddCors(options =>
         {
             builder.WithOrigins("http://localhost:3000") // Replace with your React app's origin
                    .AllowAnyMethod()
-                   .AllowAnyHeader();
+                   .AllowAnyHeader()
+                   .AllowCredentials()  // Ovo je važno za SignalR
+                   .WithExposedHeaders("Access-Control-Allow-Origin") // Za sigurnosne svrhe
+                   .SetIsOriginAllowed((host) => true); // Dopušta sve dozvoljene izvore
         });
 });
 
@@ -99,6 +107,7 @@ builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IPayoutService, PayoutService>();
 
 builder.Services.AddScoped<IPayPalService,PayPalService>();
+builder.Services.AddScoped<IVideoUploadService, VideoUploadService>();
 
 
 //Repositories
@@ -138,5 +147,8 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+
+app.MapHub<CourseHub>("/courseHub");
 
 app.Run();

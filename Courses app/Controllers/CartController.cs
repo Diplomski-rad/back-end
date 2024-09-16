@@ -2,8 +2,10 @@
 using Courses_app.Models;
 using Courses_app.Services;
 using Courses_app.Services.PayPalService;
+using Courses_app.WebSocket;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Courses_app.Controllers
 {
@@ -15,11 +17,13 @@ namespace Courses_app.Controllers
         private readonly IPayPalService _payPalService;
         private readonly IPurchaseService _purchaseService;
         private readonly IPayoutService _payoutService;
-        public CartController(IPayPalService payPalService, IPurchaseService purchaseService, IPayoutService payoutService)
+        private readonly IHubContext<CourseHub> _hubContext;
+        public CartController(IPayPalService payPalService, IPurchaseService purchaseService, IPayoutService payoutService, IHubContext<CourseHub> hubContext)
         {
             _payPalService = payPalService;
             _purchaseService = purchaseService;
             _payoutService = payoutService;
+            _hubContext = hubContext;
         }
 
         [HttpPost("create-payment")]
@@ -84,49 +88,14 @@ namespace Courses_app.Controllers
 
         }
 
-        [HttpPost("payout")]
-        public async Task<IActionResult> CreatePayouts()
-        {
-            try
-            {
-                await _payoutService.CreatePayouts();
-                return Ok();
-            }catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
-        }
 
-        [HttpPost("pay")]
-        public async Task<IActionResult> Pay()
+        [HttpGet("websocket")]
+        public async Task<IActionResult> Test()
         {
-            try
-            {
-                var recipients = new List<(string Email, decimal Amount)>
-                {
-                    ("sb-3slp232650645@personal.example.com", 20.00m),
-                    ("sb-nxudp32650692@personal.example.com", 10.00m),
-                };
-                var response = await _payPalService.MakePayoutAsync(recipients);
-                return Ok(response);
-            }catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+            await _hubContext.Clients.All.SendAsync("VideoPublished");
+            return Ok();
         }
+        
 
-        [HttpPost("process")]
-        public async Task<IActionResult> Process()
-        {
-            try
-            {
-                await _payoutService.ProcessPayouts();
-                return Ok("Successfully processed");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
-        }
     }
 }

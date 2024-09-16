@@ -393,6 +393,27 @@ namespace Courses_app.Repository
         }
 
 
+        public async Task<Video> UpdateVideoPublishedStatus(string videoId)
+        {
+            try
+            {
+                var video = await _context.Video.FirstOrDefaultAsync(v => v.Id == videoId);
+                if(video == null)
+                {
+                    return null;
+                }
+
+                video.IsPublished = true;
+                await _context.SaveChangesAsync();
+
+                return video;
+
+            }catch(DbUpdateException ex)
+            {
+                throw;
+            }
+        }
+
 
 
     }

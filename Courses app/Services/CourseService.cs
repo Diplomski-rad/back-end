@@ -2,6 +2,8 @@
 using Courses_app.Exceptions;
 using Courses_app.Models;
 using Courses_app.Repository;
+using Courses_app.WebSocket;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Courses_app.Services
 {
@@ -11,14 +13,17 @@ namespace Courses_app.Services
         private readonly IUserRepository _userRepository;
         private readonly IVideoService _videoService;
         private readonly IImageService _imageService;
+        private readonly IDailymotionAuthService _auth;
+        private readonly IVideoUploadService _videoUploadService;
 
-        public CourseService(ICourseRepository courseRepository, IUserRepository userRepository, IVideoService videoService, IImageService imageService)
+        public CourseService(ICourseRepository courseRepository, IUserRepository userRepository, IVideoService videoService, IImageService imageService, IDailymotionAuthService auth, IVideoUploadService videoUploadService)
         {
             _courseRepository = courseRepository;
             _userRepository = userRepository;
             _videoService = videoService;
             _imageService = imageService;
-
+            _auth = auth;
+            _videoUploadService = videoUploadService;
         }
 
         public async Task<long> Add(CreateCourseModel createCourse)
@@ -71,11 +76,33 @@ namespace Courses_app.Services
             Course course = await _courseRepository.Get(model.courseId);
 
             string videoId = await _videoService.UploadVideo(model.file.OpenReadStream(), model.title, course.PlaylistId);
-            Video video = new Video(videoId, author, model.title, model.description);
+            Video video = new Video(videoId, author, model.title, model.description, false);
 
             Course updatedCourse = await _courseRepository.AddVideoToCourse(model.courseId, video);
             CourseDto courseDto = new CourseDto(updatedCourse);
             return courseDto;
+        }
+
+        public async Task<string> AddVideoToCourseAsync(AddVideoModel model)
+        {
+            Author author = await _userRepository.GetAuthorById(model.authorId);
+            Course course = await _courseRepository.Get(model.courseId);
+
+            TokenResponse tokenResponse = await _auth.GetAccessToken();
+
+            var uploadUrlResponse = await _videoService.GetUploadUrl(tokenResponse.Access_token);
+            var uploadUrl = uploadUrlResponse.upload_url;
+
+            byte[] fileBytes;
+            using (var memoryStream = new MemoryStream())
+            {
+                await model.file.CopyToAsync(memoryStream);
+                fileBytes = memoryStream.ToArray();
+            }
+
+            _videoUploadService.UploadVideoAndAddToCourseAsync(uploadUrl, tokenResponse, model.title, model.description, course, author, fileBytes);
+
+            return uploadUrlResponse.progress_url;
         }
 
         public async Task<List<VideoDto>> GetCourseVideos(long courseId)
@@ -206,6 +233,12 @@ namespace Courses_app.Services
             {
                 throw;
             }
+        }
+
+        public async Task<Video> UpdateVideoPublishedStatus(string videoId)
+        {
+            var video = await _courseRepository.UpdateVideoPublishedStatus(videoId);
+            return video;
         }
 
 

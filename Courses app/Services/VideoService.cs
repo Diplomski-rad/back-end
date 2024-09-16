@@ -12,6 +12,7 @@ namespace Courses_app.Services
     {
 
         private readonly IDailymotionAuthService _auth;
+        
 
         public VideoService(IDailymotionAuthService authService)
         {
@@ -49,7 +50,26 @@ namespace Courses_app.Services
             return videoId;
         }
 
-        private async Task<UploadUrlResponse> GetUploadUrl(string accessToken)
+        public async Task<UploadUrlResponse> UploadVideoTest(Stream videoStream, string title, string playlistId)
+        {
+            TokenResponse tokenResponse = await _auth.GetAccessToken();
+
+            // Get upload URL
+            var uploadUrlResponse = await GetUploadUrl(tokenResponse.Access_token);
+            var uploadUrl = uploadUrlResponse.upload_url;
+
+            string description = "This is description";
+            // Upload video
+            var uploadResponse =  await UploadFile(videoStream, uploadUrl, tokenResponse.Access_token);
+
+            string videoId = await CreateVideo(title, tokenResponse.Access_token, uploadResponse.url, tokenResponse.uid, description);
+
+            bool isAdded = await AddVideoToPlaylist(tokenResponse.Access_token, videoId, playlistId);
+
+            return uploadUrlResponse;
+        }
+
+        public async Task<UploadUrlResponse> GetUploadUrl(string accessToken)
         {
             var client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
@@ -61,7 +81,7 @@ namespace Courses_app.Services
             return JsonConvert.DeserializeObject<UploadUrlResponse>(json);
         }
 
-        private async Task<UploadResponse> UploadFile(Stream videoStream, string uploadUrl, string accessToken)
+        public async Task<UploadResponse> UploadFile(Stream videoStream, string uploadUrl, string accessToken)
         {
             var client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
@@ -77,7 +97,7 @@ namespace Courses_app.Services
             return JsonConvert.DeserializeObject<UploadResponse>(json);
         }
 
-        private async Task<string> CreateVideo(string title, string accessToken, string uploadUrl, string uid, string description)
+        public async Task<string> CreateVideo(string title, string accessToken, string uploadUrl, string uid, string description)
         {
             var client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
@@ -120,7 +140,7 @@ namespace Courses_app.Services
             }
         }
 
-        private async Task<bool> AddVideoToPlaylist(string accessToken, string videoId, string playslstId)
+        public async Task<bool> AddVideoToPlaylist(string accessToken, string videoId, string playslstId)
         {
             var client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
@@ -137,6 +157,40 @@ namespace Courses_app.Services
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
                     throw new Exception($"Failed to add to playlsit: {response.StatusCode} - {errorContent}");
+                }
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Forbidden)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<EncodingProgressResponse> CheckVideoEncodingProgress(string videoId)
+        {
+            TokenResponse tokenResponse = await _auth.GetAccessToken();
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.Access_token);
+
+            try
+            {
+                var response = await client.GetAsync($"https://api.dailymotion.com/video/{videoId}?fields=encoding_progress");
+
+                if (response.IsSuccessStatusCode)
+                {
+
+                    var json = await response.Content.ReadAsStringAsync();
+                    var encodingProgressResponse = JsonConvert.DeserializeObject<EncodingProgressResponse>(json);
+                    return encodingProgressResponse;
+
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Failed to retrieve encoding progress: {response.StatusCode} - {errorContent}");
                 }
             }
             catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Forbidden)

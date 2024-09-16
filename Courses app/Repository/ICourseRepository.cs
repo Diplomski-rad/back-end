@@ -19,6 +19,7 @@ namespace Courses_app.Repository
         public Task<Course> UpdateNameAndDescription(long userId, long courseId, string name, string description);
         public Task<Course> AddCourseThumbnail(long authorId, long courseId, string thumbnail);
         public Task<Video> AddVideoThumbnail(long authorId, long courseId, string videoId, string thumbnail);
+        public Task<Video> UpdateVideoPublishedStatus(string videoId);
 
     }
 }

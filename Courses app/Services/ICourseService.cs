@@ -20,5 +20,8 @@ namespace Courses_app.Services
         public Task<Course> UpdateNameAndDescription(long userId, long courseId, string name, string description);
         public Task<Course> AddCourseThumbnail(long authorId, long courseId, IFormFile thumbnail);
         public Task<VideoDto> AddVideoThumbnail(long authorId, long courseId, string videoId, IFormFile image);
+
+        public Task<string> AddVideoToCourseAsync(AddVideoModel model);
+        public Task<Video> UpdateVideoPublishedStatus(string videoId);
     }
 }
