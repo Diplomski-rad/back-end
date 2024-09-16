@@ -92,7 +92,7 @@ namespace Courses_app.Repository
         {
             try
             {
-                Rating rating = await _context.Rating.FirstOrDefaultAsync(r => r.UserId == userId && r.CourseId == courseId);
+                Rating rating = await _context.Rating.FirstOrDefaultAsync(r => r.UserId == userId && r.CourseId == courseId && r.IsValid);
                 return rating;
 
             }catch(Exception ex)

@@ -128,5 +128,70 @@ namespace Courses_app.Controllers
                 return StatusCode(500, "An unexpected error occured.");
             }
         }
+
+        [Authorize(Policy = "AdminOnly")]
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAll()
+        {
+            try
+            {
+                var users = await _userService.GetAll();
+                return Ok(users);
+
+            }catch (Exception ex)
+            {
+                return StatusCode(500, "An unexpected error occured");
+            }
+        }
+
+        [Authorize(Policy = "AdminOnly")]
+        [HttpPost("{userId}/ban")]
+        public async Task<IActionResult> BanUser(long userId)
+        {
+            try
+            {
+                var banedUserId = await _userService.BanUser(userId);
+                return Ok(banedUserId);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An unexpected error occured");
+            }
+        }
+
+        [Authorize(Policy = "AdminOnly")]
+        [HttpPost("{userId}/unban")]
+        public async Task<IActionResult> UnbanUser(long userId)
+        {
+            try
+            {
+                var unbanedUserId = await _userService.UnbanUser(userId);
+                return Ok(unbanedUserId);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An unexpected error occured");
+            }
+        }
+
+
+        //[HttpGet("admin")]
+        //public async Task<IActionResult> CreateAdmin()
+        //{
+        //    try
+        //    {
+        //        User user = new User() { Email = "admin@example.com", Username = "admin", Role = UserRole.Admin, Password = "password123", IsActive = true };
+        //        var adminId = await _userService.AddAdmin(user);
+
+        //        return Ok(adminId);
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, "An unexpected error occured");
+        //    }
+        //}
     }
 }

@@ -19,6 +19,8 @@ namespace Courses_app.Models
 
         public string? Review { get; set; }
 
+        public bool IsValid { get; set; }
+
         public Rating()
         {
             

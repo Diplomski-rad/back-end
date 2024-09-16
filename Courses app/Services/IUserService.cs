@@ -12,5 +12,9 @@ namespace Courses_app.Services
         public Task<AuthorDetailsDto> GetAuthor(long id);
         public Task<User> ChangePassword(long id, ChangePassordRequest request);
         public Task<User> UpdateUser(long userId, UpdateUserRequest request, UserRole role);
+        public Task<List<UserDto>> GetAll();
+        public Task<long> AddAdmin(User user);
+        public Task<long> BanUser(long userId);
+        public Task<long> UnbanUser(long userId);
     }
 }

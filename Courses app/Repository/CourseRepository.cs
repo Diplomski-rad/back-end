@@ -42,7 +42,7 @@ namespace Courses_app.Repository
                     .Include(c => c.Author)
                     .Include(c => c.Videos)
                     .Include(c => c.Categories)
-                    .Include(c => c.Ratings)
+                    .Include(c => c.Ratings.Where(r => r.IsValid))
                     .FirstOrDefaultAsync(c => c.Id == id);
 
                 if (course == null)
@@ -66,7 +66,7 @@ namespace Courses_app.Repository
                     .Include(c => c.Author)
                     .Include(c => c.Videos)
                     .Include(c => c.Categories)
-                    .Include(c => c.Ratings)
+                    .Include(c => c.Ratings.Where(r => r.IsValid))
                     .FirstOrDefaultAsync(c => c.Id == courseId && c.Author.Id == authorId);
 
                 return course;
@@ -110,7 +110,7 @@ namespace Courses_app.Repository
                 .Include(c => c.Author)
                 .Include(c => c.Videos)
                 .Include(c => c.Categories)
-                .Include(c => c.Ratings)
+                .Include(c => c.Ratings.Where(r => r.IsValid))
                 .Where(c => c.Author.Id == authorId).ToListAsync();
             return courses;
         }
@@ -160,7 +160,7 @@ namespace Courses_app.Repository
                 List<Course> courses = await _context.Course
                 .Include(c => c.Author)
                 .Include(c => c.Categories)
-                .Include(c => c.Ratings)
+                .Include(c => c.Ratings.Where(r => r.IsValid))
                 .Where(c => c.Status == CourseStatus.PUBLISHED).ToListAsync();
                 return courses;
             }
@@ -182,7 +182,7 @@ namespace Courses_app.Repository
                 List<Course> courses = await _context.Course
                     .Include(c => c.Author)
                     .Include(c => c.Categories)
-                    .Include(c => c.Ratings)
+                    .Include(c => c.Ratings.Where(r => r.IsValid))
                     .Where(c => c.Status == CourseStatus.PUBLISHED && c.Name.Trim().ToLower().Contains(query.Trim().ToLower())).ToListAsync();
                 return courses;
             } catch (Exception ex)
@@ -206,7 +206,7 @@ namespace Courses_app.Repository
                     List<Course> courses = await _context.Course
                         .Include(c => c.Author)
                         .Include(c => c.Categories)
-                        .Include(c => c.Ratings)
+                        .Include(c => c.Ratings.Where(r => r.IsValid))
                         .Where(c => c.Status == CourseStatus.PUBLISHED && c.Categories.Any(cat => categoryIds.Contains(cat.Id)))
                         .ToListAsync();
 
@@ -224,7 +224,7 @@ namespace Courses_app.Repository
                     List<Course> courses = await _context.Course
                         .Include(c => c.Author)
                         .Include(c => c.Categories)
-                        .Include(c => c.Ratings)
+                        .Include(c => c.Ratings.Where(r => r.IsValid))
                         .Where(c => c.Status == CourseStatus.PUBLISHED && c.DifficultyLevel == difficultyLevel)
                         .ToListAsync();
 
@@ -246,7 +246,7 @@ namespace Courses_app.Repository
                     List<Course> courses = await _context.Course
                         .Include(c => c.Author)
                         .Include(c => c.Categories)
-                        .Include(c => c.Ratings)
+                        .Include(c => c.Ratings.Where(r => r.IsValid))
                         .Where(c => c.Status == CourseStatus.PUBLISHED &&
                                     c.Categories.Any(cat => categoryIds.Contains(cat.Id)) &&
                                     c.DifficultyLevel == difficultyLevel)

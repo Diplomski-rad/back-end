@@ -42,6 +42,10 @@ namespace Courses_app.Controllers
                     return Unauthorized("There is no user with given credetials");
 
                 }
+                catch(UserBannedException ex)
+                {
+                    return StatusCode(403,"This account is banned. Contact support for more informations.");
+                }
                 catch (Exception ex)
                 {
                     return StatusCode(500, "An unexpected error occured");

@@ -3,6 +3,7 @@ using Courses_app.Dto;
 using Courses_app.Models;
 using Courses_app.Repository;
 using System.Reflection.Metadata.Ecma335;
+using System.Runtime.Intrinsics.X86;
 
 namespace Courses_app.Services
 {
@@ -67,13 +68,34 @@ namespace Courses_app.Services
             return await _repository.UpdateUser(userId, request.Name, request.Surname, request.Username, role);
         }
 
+        public async Task<List<UserDto>> GetAll()
+        {
+            var users = await _repository.GetAll();
+            var userDtos = users.Select(u => new UserDto(u)).ToList();
 
+            return userDtos;
+        }
 
+        public async Task<long> AddAdmin(User user)
+        {
+            user.Password = EncodePassword(user.Password);
+            return await _repository.AddAdmin(user);
+        }
 
 
         private string EncodePassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password);
+        }
+
+        public async Task<long> BanUser(long userId)
+        {
+            return await _repository.BanUser(userId);
+        }
+
+        public async Task<long> UnbanUser(long userId)
+        {
+            return await _repository.UnbanUser(userId);
         }
     }
 }

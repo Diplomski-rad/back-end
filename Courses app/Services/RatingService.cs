@@ -14,7 +14,9 @@ namespace Courses_app.Services
 
         public async Task<long> Add(RatingDto ratingDto)
         {
-            return await _ratingRepository.Add(new Rating(ratingDto));
+            Rating rating = new Rating(ratingDto);
+            rating.IsValid = true;
+            return await _ratingRepository.Add(rating);
         }
 
         //public async Task<CourseRatingsDto> GetCourseRatings(long courseId)
