@@ -1,4 +1,5 @@
-﻿using Courses_app.Models;
+﻿using Courses_app.Dto;
+using Courses_app.Models;
 
 namespace Courses_app.Repository
 {
@@ -13,6 +14,7 @@ namespace Courses_app.Repository
         public Task<User> ChangePassword(long id, string newPassword);
         public Task<User> UpdateUser(long id, string name, string surname, string username, UserRole role);
         public Task<List<User>> GetAll();
+        public Task<List<User>> Search(string query, SearchUserFlag flag);
         public Task<long> BanUser(long userId);
         public Task<long> UnbanUser(long userId);
 

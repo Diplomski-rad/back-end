@@ -1,4 +1,5 @@
-﻿using Courses_app.Exceptions;
+﻿using Courses_app.Dto;
+using Courses_app.Exceptions;
 using Courses_app.Models;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -217,6 +218,37 @@ namespace Courses_app.Repository
 
 
             }catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
+
+        public async Task<List<User>> Search(string query, SearchUserFlag flag)
+        {
+            try
+            {
+                if(query != null)
+                {
+                    if (flag == SearchUserFlag.username)
+                    {
+                        var users = await _context.Users.Where(u => u.Username.Trim().ToLower().Contains(query.Trim().ToLower())).ToListAsync();
+                        return users;
+                    }
+                    else
+                    {
+                        var users = await _context.Users.Where(u => u.Email.Trim().ToLower().Contains(query.Trim().ToLower())).ToListAsync();
+                        return users;
+                    }
+                }
+                else
+                {
+                    throw new BadDataException();
+                }
+               
+
+            }
+            catch (Exception ex)
             {
                 throw;
             }

@@ -97,5 +97,11 @@ namespace Courses_app.Services
         {
             return await _repository.UnbanUser(userId);
         }
+
+        public async Task<List<UserDto>> Search(string query, SearchUserFlag flag)
+        {
+            var users = await _repository.Search(query, flag);
+            return users.Select(u => new UserDto(u)).ToList();
+        }
     }
 }

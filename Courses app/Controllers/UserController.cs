@@ -145,6 +145,28 @@ namespace Courses_app.Controllers
         }
 
         [Authorize(Policy = "AdminOnly")]
+        [HttpPost("search")]
+        public async Task<IActionResult> GetAll([FromBody] SearchUserModel model)
+        {
+            try
+            {
+                if (Enum.TryParse(model.Flag, out SearchUserFlag flag) && model.Query != null && model.Query != string.Empty)
+                {
+                    var users = await _userService.Search(model.Query, flag);
+                    return Ok(users);
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An unexpected error occured");
+            }
+        }
+
+        [Authorize(Policy = "AdminOnly")]
         [HttpPost("{userId}/ban")]
         public async Task<IActionResult> BanUser(long userId)
         {
