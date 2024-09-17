@@ -52,5 +52,43 @@ namespace Courses_app.Repository
                 throw new RepositoryException("An error occurred while retrieving category groups", ex);
             }
         }
+
+        public async Task<long> AddCategoryGroup(CategoryGroup categryGroup)
+        {
+            try
+            {
+                _context.Add(categryGroup);
+                await _context.SaveChangesAsync();
+                return categryGroup.Id;
+
+            }catch(DbUpdateException ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<long> AddCategoryToCategoryGroup(Category category, long categoryGroupId)
+        {
+            try
+            {
+                var categoryGroup = await _context.CategoryGroup
+                    .Include(c => c.Categories)
+                    .FirstOrDefaultAsync(c => c.Id == categoryGroupId);
+
+                if(categoryGroup == null)
+                {
+                    throw new NotFoundException("Category group with given id don't exist.");
+                }
+
+                categoryGroup.Categories.Add(category);
+                await _context.SaveChangesAsync();
+
+                return category.Id;
+            }
+            catch (DbUpdateException ex)
+            {
+                throw;
+            }
+        }
     }
 }

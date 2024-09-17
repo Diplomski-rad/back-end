@@ -21,5 +21,15 @@ namespace Courses_app.Services
                 .Select(categoryGroup => new CategoryGroupDto(categoryGroup))
                 .ToList();
         }
+
+        public async Task<long> AddCategoryToCategoryGroup(string categoryName, long categoryGroupId)
+        {
+            return await _categoryRepository.AddCategoryToCategoryGroup(new Category() { Name = categoryName }, categoryGroupId);
+        }
+
+        public async Task<long> AddCategoryGroup(string categryGroupName)
+        {
+            return await _categoryRepository.AddCategoryGroup(new CategoryGroup() { Name = categryGroupName });
+        }
     }
 }

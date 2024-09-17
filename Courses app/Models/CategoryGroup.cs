@@ -10,5 +10,10 @@ namespace Courses_app.Models
         public long Id { get; set; } 
         public string Name { get; set; }
         public ICollection<Category> Categories { get; set;} = new List<Category>();
+
+        public CategoryGroup()
+        {
+            
+        }
     }
 }
