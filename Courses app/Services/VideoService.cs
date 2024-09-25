@@ -16,21 +16,19 @@ namespace Courses_app.Services
 
         public VideoService(IDailymotionAuthService authService)
         {
-
             _auth = authService;
-
         }
 
-        public async Task<string> GetAccessToken()
-        {
-            try {
-                TokenResponse tokenResponse = await _auth.GetAccessToken();
-                return tokenResponse.Access_token;
-            }
-            catch (Exception ex) {
-                throw;
-            }
-        }
+        //public async Task<string> GetAccessToken()
+        //{
+        //    try {
+        //        TokenResponse tokenResponse = await _auth.GetAccessToken();
+        //        return tokenResponse.Access_token;
+        //    }
+        //    catch (Exception ex) {
+        //        throw;
+        //    }
+        //}
         public async Task<string> UploadVideo(Stream videoStream, string title, string playlistId)
         {
             TokenResponse tokenResponse = await _auth.GetAccessToken();
@@ -83,7 +81,10 @@ namespace Courses_app.Services
 
         public async Task<UploadResponse> UploadFile(Stream videoStream, string uploadUrl, string accessToken)
         {
-            var client = new HttpClient();
+            var client = new HttpClient()
+            {
+                Timeout = TimeSpan.FromMinutes(30) // Set the timeout to 30 minutes
+            };
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
 
@@ -93,6 +94,9 @@ namespace Courses_app.Services
             content.Add(fileContent, "file", "video.mkv");
 
             var response = await client.PostAsync(uploadUrl, content);
+
+            response.EnsureSuccessStatusCode(); // Throws an exception if the status code is not 2xx
+
             var json = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<UploadResponse>(json);
         }
@@ -109,7 +113,6 @@ namespace Courses_app.Services
                 new KeyValuePair<string, string>("is_created_for_kids", "false"),
                 new KeyValuePair<string, string>("published", "true"),
                 new KeyValuePair<string, string>("private", "true"),
-                //new KeyValuePair<string, string>("password", "password123"),
                 new KeyValuePair<string, string>("channel", "school"),
                 new KeyValuePair<string, string>("description", description),
             });
@@ -121,7 +124,7 @@ namespace Courses_app.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
-                    var videoResponse = JsonConvert.DeserializeObject<VideoResponse>(json); // Define VideoResponse class based on API response
+                    var videoResponse = JsonConvert.DeserializeObject<VideoResponse>(json);
                     return videoResponse.id;
                 }
                 else
@@ -169,39 +172,39 @@ namespace Courses_app.Services
             }
         }
 
-        public async Task<EncodingProgressResponse> CheckVideoEncodingProgress(string videoId)
-        {
-            TokenResponse tokenResponse = await _auth.GetAccessToken();
-            var client = new HttpClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.Access_token);
+        //public async Task<EncodingProgressResponse> CheckVideoEncodingProgress(string videoId)
+        //{
+        //    TokenResponse tokenResponse = await _auth.GetAccessToken();
+        //    var client = new HttpClient();
+        //    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.Access_token);
 
-            try
-            {
-                var response = await client.GetAsync($"https://api.dailymotion.com/video/{videoId}?fields=encoding_progress");
+        //    try
+        //    {
+        //        var response = await client.GetAsync($"https://api.dailymotion.com/video/{videoId}?fields=encoding_progress");
 
-                if (response.IsSuccessStatusCode)
-                {
+        //        if (response.IsSuccessStatusCode)
+        //        {
 
-                    var json = await response.Content.ReadAsStringAsync();
-                    var encodingProgressResponse = JsonConvert.DeserializeObject<EncodingProgressResponse>(json);
-                    return encodingProgressResponse;
+        //            var json = await response.Content.ReadAsStringAsync();
+        //            var encodingProgressResponse = JsonConvert.DeserializeObject<EncodingProgressResponse>(json);
+        //            return encodingProgressResponse;
 
-                }
-                else
-                {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    throw new Exception($"Failed to retrieve encoding progress: {response.StatusCode} - {errorContent}");
-                }
-            }
-            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Forbidden)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-        }
+        //        }
+        //        else
+        //        {
+        //            var errorContent = await response.Content.ReadAsStringAsync();
+        //            throw new Exception($"Failed to retrieve encoding progress: {response.StatusCode} - {errorContent}");
+        //        }
+        //    }
+        //    catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Forbidden)
+        //    {
+        //        throw;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw;
+        //    }
+        //}
 
         public async Task<string> CreatePlaylist(string name)
         {

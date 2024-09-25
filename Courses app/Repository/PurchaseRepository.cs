@@ -72,14 +72,12 @@ namespace Courses_app.Repository
         {
             try
             {
-                // Fetch the user
                 var user = await _context.BasicUsers.FindAsync(purchaseModel.UserId);
                 if (user == null)
                 {
                     throw new RepositoryException("Cannot find user with the given id");
                 }
 
-                // Retrieve all required courses
                 var courses = await _context.Course
                     .Include(c => c.Author)
                     .Where(c => purchaseModel.CoursesIds.Contains(c.Id))
@@ -101,9 +99,8 @@ namespace Courses_app.Repository
                     purchases.Add(purchase);
                 }
 
-                // Add Purchases to context
                 await _context.Purchases.AddRangeAsync(purchases);
-                await _context.SaveChangesAsync(); // Save changes to generate Purchase IDs
+                await _context.SaveChangesAsync();
 
                 // Create AuthorEarnings
                 var authorEarnings = new List<AuthorEarning>();
@@ -112,18 +109,17 @@ namespace Courses_app.Repository
                     var course = courses.First(c => c.Id == purchase.Course.Id);
                     var authorEarning = new AuthorEarning
                     {
-                        PurchaseId = purchase.Id, // Set PurchaseId from saved Purchase
+                        PurchaseId = purchase.Id, 
                         AuthorId = course.Author.Id,
-                        Amount = (decimal)course.Price * 0.70m, // Assuming 70% of the course price
+                        Amount = (decimal)course.Price * 0.70m,
                         IsIncludedInPayout = false
                     };
 
                     authorEarnings.Add(authorEarning);
                 }
 
-                // Add AuthorEarnings to context
                 await _context.AuthorEarning.AddRangeAsync(authorEarnings);
-                await _context.SaveChangesAsync(); // Save changes to persist AuthorEarnings
+                await _context.SaveChangesAsync();
 
                 return purchases;
             }

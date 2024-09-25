@@ -103,48 +103,8 @@ namespace Courses_app.Services.PayPalService
             var apiContext = GetApiContext(accessToken);
             var payment = new Payment { id = paymentId };
             var paymentExecution = new PaymentExecution { payer_id = payerId };
-            Payment payment1 = payment.Execute(apiContext, paymentExecution);
-            return payment1;
-        }
-
-        public async Task<PayoutBatch> MakePayoutAsync(List<(string Email, decimal Amount)> recipients)
-        {
-            var accessToken = GetAccessToken();
-            var apiContext = GetApiContext(accessToken);
-
-            var payoutItems = recipients.Select(recipient => new PayoutItem
-            {
-                recipient_type = PayoutRecipientType.EMAIL,
-                amount = new Currency
-                {
-                    value = recipient.Amount.ToString("F2"),  // Format to 2 decimal places
-                    currency = "USD"
-                },
-                receiver = recipient.Email,
-                note = "Thank you for your contribution!",
-                sender_item_id = Guid.NewGuid().ToString()  // Unique identifier for this item
-            }).ToList();
-
-            var payout = new PayPal.Api.Payout
-            {
-                sender_batch_header = new PayoutSenderBatchHeader
-                {
-                    sender_batch_id = Guid.NewGuid().ToString(),
-                    email_subject = "You have a payment from CoursesApp",
-                },
-                items = payoutItems
-            };
-
-            try
-            {
-                var createdPayout = payout.Create(apiContext, false);  // Set `false` for synchronous
-                return createdPayout;
-            }
-            catch (PaymentsException ex)
-            {
-                Debug.WriteLine($"Error: {ex.Response}");
-                return null;
-            }
+            Payment executedPayment = payment.Execute(apiContext, paymentExecution);
+            return executedPayment;
         }
 
         public async Task<PayoutBatch> MakePayoutAsync(List<Models.Payout> recipients)

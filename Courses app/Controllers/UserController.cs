@@ -50,9 +50,9 @@ namespace Courses_app.Controllers
                 if (Enum.TryParse(role, out UserRole userRole))
                 {
 
-                    var author = await _userService.UpdateUser(userId, request, userRole);
+                    var user = await _userService.UpdateUser(userId, request, userRole);
 
-                    if (author == null)
+                    if (user == null)
                     {
                         return Unauthorized();
                     }
@@ -146,7 +146,7 @@ namespace Courses_app.Controllers
 
         [Authorize(Policy = "AdminOnly")]
         [HttpPost("search")]
-        public async Task<IActionResult> GetAll([FromBody] SearchUserModel model)
+        public async Task<IActionResult> Search([FromBody] SearchUserModel model)
         {
             try
             {

@@ -7,10 +7,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Courses_app.Models;
 using Courses_app.Services.PayPalService;
-using Courses_app.Models.PayPal;
 using Microsoft.Extensions.FileProviders;
 using Quartz;
 using Courses_app.WebSocket;
+using Microsoft.AspNetCore.Http.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,17 +27,26 @@ builder.Services.AddQuartz(q =>
     q.AddTrigger(opts => opts
         .ForJob(jobKey)
         .WithIdentity("PayoutJob-trigger")
+        //.WithCronSchedule("0 0 9 ? * MON *")); // Monday at 9AM
         //.WithCronSchedule("0/5 * * * * ?")); // Every 5 seconds
         //.WithCronSchedule("0 35 19 ? * * *")); // Every day at 07:35PM
-        //.WithCronSchedule("0 43 19 ? * * *")); 
-        .WithCronSchedule("0 0 9 ? * MON *")); // Monday at 9AM
-                                               
+        //.WithCronSchedule("0 43 19 ? * * *")); 0 41 11 ? * WED *
+        //.WithCronSchedule("0 41 11 ? * WED *")); // Wednesday at 11:41AM
+        //.WithCronSchedule("0 45 10 ? * THU *")); // Thurstday at 10:45AM
+        .WithCronSchedule("0 03 18 ? * WED *")); // Wednesday at 11:41AM
+
 });
 
 builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
 
 builder.Services.AddSignalR();
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    // Set the maximum allowed size for form body
+    options.MultipartBodyLengthLimit = 524288000; // 500 MB, adjust this size as needed
+});
 
 
 builder.Services.AddCors(options =>
@@ -119,6 +128,13 @@ builder.Services.AddScoped<IRatingRepository, RatingRepository>();
 builder.Services.AddScoped<IPayoutRepository, PayoutRepository>();
 
 var app = builder.Build();
+
+app.Use(async (context, next) =>
+{
+    // Apply request body size limit (optional)
+    context.Features.Get<IHttpMaxRequestBodySizeFeature>().MaxRequestBodySize = 524288000; // 500 MB, adjust as needed
+    await next.Invoke();
+});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

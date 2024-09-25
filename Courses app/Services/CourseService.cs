@@ -70,18 +70,18 @@ namespace Courses_app.Services
             return courseDtos;
         }
 
-        public async Task<CourseDto> AddVideoToCourse(AddVideoModel model)
-        {
-            Author author = await _userRepository.GetAuthorById(model.authorId);
-            Course course = await _courseRepository.Get(model.courseId);
+        //public async Task<CourseDto> AddVideoToCourse(AddVideoModel model)
+        //{
+        //    Author author = await _userRepository.GetAuthorById(model.authorId);
+        //    Course course = await _courseRepository.Get(model.courseId);
 
-            string videoId = await _videoService.UploadVideo(model.file.OpenReadStream(), model.title, course.PlaylistId);
-            Video video = new Video(videoId, author, model.title, model.description, false);
+        //    string videoId = await _videoService.UploadVideo(model.file.OpenReadStream(), model.title, course.PlaylistId);
+        //    Video video = new Video(videoId, author, model.title, model.description, false);
 
-            Course updatedCourse = await _courseRepository.AddVideoToCourse(model.courseId, video);
-            CourseDto courseDto = new CourseDto(updatedCourse);
-            return courseDto;
-        }
+        //    Course updatedCourse = await _courseRepository.AddVideoToCourse(model.courseId, video);
+        //    CourseDto courseDto = new CourseDto(updatedCourse);
+        //    return courseDto;
+        //}
 
         public async Task<string> AddVideoToCourseAsync(AddVideoModel model)
         {
@@ -150,22 +150,22 @@ namespace Courses_app.Services
             }
         }
 
-        public async Task<Course> Get(long id)
-        {
-            return await _courseRepository.Get(id);
-        }
+        //public async Task<Course> Get(long id)
+        //{
+        //    return await _courseRepository.Get(id);
+        //}
 
         public async Task<List<Course>> GetCoursesByIds(List<long> ids)
         {
             return await _courseRepository.GetCoursesByIds(ids);
         }
 
-        public async Task<CourseDto> GetPurchased(long courseId)
-        {
-            var course = await _courseRepository.Get(courseId);
-            CourseDto purchasedCourse = new CourseDto(course);
-            return purchasedCourse;
-        }
+        //public async Task<CourseDto> GetPurchased(long courseId)
+        //{
+        //    var course = await _courseRepository.Get(courseId);
+        //    CourseDto purchasedCourse = new CourseDto(course);
+        //    return purchasedCourse;
+        //}
 
         public async Task<CourseDto> PublishCourse(long courseId, long userId, PublishCourseRequest request)
         {

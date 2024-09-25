@@ -59,8 +59,6 @@ namespace Courses_app.Controllers
             {
                 return StatusCode(500);
             }
-
-            // Return the file URL or path
             
 
         }

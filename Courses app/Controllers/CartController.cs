@@ -88,14 +88,5 @@ namespace Courses_app.Controllers
 
         }
 
-
-        [HttpGet("websocket")]
-        public async Task<IActionResult> Test()
-        {
-            await _hubContext.Clients.All.SendAsync("VideoPublished");
-            return Ok();
-        }
-        
-
     }
 }

@@ -14,10 +14,10 @@ namespace Courses_app.Services
             _payPalService = payPalService;
         }
 
-        public async Task CreatePayouts()
-        {
-            await _payoutRepository.CreatePayouts();
-        }
+        //public async Task CreatePayouts()
+        //{
+        //    await _payoutRepository.CreatePayouts();
+        //}
 
         public async Task ProcessPayouts()
         {

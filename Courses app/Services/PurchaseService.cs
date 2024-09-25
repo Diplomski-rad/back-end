@@ -7,14 +7,14 @@ namespace Courses_app.Services
     public class PurchaseService : IPurchaseService
     {
         private readonly IPurchaseRepository _purchaseRepository;
-        private readonly IUserService _userService;
-        private readonly ICourseService _courseService;
+        //private readonly IUserService _userService;
+        //private readonly ICourseService _courseService;
 
-        public PurchaseService(IPurchaseRepository purchaseRepository, IUserService userService, ICourseService courseService)
+        public PurchaseService(IPurchaseRepository purchaseRepository)
         {
             _purchaseRepository = purchaseRepository;
-            _userService = userService;
-            _courseService = courseService;
+            //_userService = userService;
+            //_courseService = courseService;
         }
 
         //public async Task<long> CreatePurchase(CreatePurchaseModel model)
